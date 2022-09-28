@@ -4,7 +4,7 @@
 flowchart TB
 
     subgraph Generate Secret Key
-      random0(Random 32 bytes) --> a_0(Secret key)
+      random0(Random 32 bytes) --> a_0(Secret Key)
       random1(Random 32 bytes) --> a_0
     end
 
