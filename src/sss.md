@@ -1,9 +1,11 @@
 # Shamirs Secret Sharing Scheme
 
+*Shamirs Secret Sharing* allows to split the secret to `n` parts and restore it upon presentation any `m` parts (`m <= n`)
+
 [Sharmir's Secret Sharing wikipedia](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) is a good reference to understand the concept.
 
 Reconstruction 1: https://github.com/akinovak/semaphore-lib/blob/5b9bb3210192c8e508eced7ef6579fd56e635ed0/src/rln.ts#L31
-```rs
+```js
 retrievePrivateKey(x1: bigint, x2:bigint, y1:bigint, y2:bigint): Buffer | ArrayBuffer {
         const slope = Fq.div(Fq.sub(y2, y1), Fq.sub(x2, x1))
         const privateKey = Fq.sub(y1, Fq.mul(slope, x1));
@@ -13,7 +15,7 @@ retrievePrivateKey(x1: bigint, x2:bigint, y1:bigint, y2:bigint): Buffer | ArrayB
 
 Reconstruction 2: https://github.com/akinovak/semaphore-lib/blob/rln_signature_changes/test/index.ts#L250
 
-```rs
+```js
 async function testRlnSlashingSimulation() {
     RLN.setHasher('poseidon');
     const identity = RLN.genIdentity();
