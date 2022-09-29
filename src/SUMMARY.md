@@ -7,8 +7,9 @@
   - [Under the hood](./under_the_hood.md)
     - [Circom Circuit](./rln_circuit.md)
   - [References](./references.md)
-- [Code](./code.md)
-  - [Usage](./how_to_use.md)
+- [Usage](./code.md)
+  - [RLN in JavaScript]()
+  - [RLN in Rust]()
 
 - [Theory](./theory.md)
   - [Shamir's Secret Sharing](./sss.md)
