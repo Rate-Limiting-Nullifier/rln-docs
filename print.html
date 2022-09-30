@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="under_the_hood.html"><strong aria-hidden="true">2.2.</strong> Under the hood</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rln_circuit.html"><strong aria-hidden="true">2.2.1.</strong> Circom circuit</a></li></ol></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.3.</strong> Uses</a></li></ol></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to use</a></li><li><ol class="section"><li class="chapter-item expanded "><div><strong aria-hidden="true">3.1.</strong> JavaScript RLN</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.2.</strong> Rust RLN</div></li></ol></li><li class="chapter-item expanded "><a href="theory.html"><strong aria-hidden="true">4.</strong> Theory</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">4.1.</strong> Shamir's Secret Sharing</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="terminology.html"><strong aria-hidden="true">5.1.</strong> A - Terminology</a></li><li class="chapter-item expanded "><a href="references.html"><strong aria-hidden="true">5.2.</strong> B - References</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="under_the_hood.html"><strong aria-hidden="true">2.2.</strong> Under the hood</a></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.3.</strong> Uses</a></li></ol></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to use</a></li><li><ol class="section"><li class="chapter-item expanded "><div><strong aria-hidden="true">3.1.</strong> JavaScript RLN</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.2.</strong> Rust RLN</div></li></ol></li><li class="chapter-item expanded "><a href="theory.html"><strong aria-hidden="true">4.</strong> Theory</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">4.1.</strong> Shamir's Secret Sharing</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="terminology.html"><strong aria-hidden="true">5.1.</strong> A - Terminology</a></li><li class="chapter-item expanded "><a href="references.html"><strong aria-hidden="true">5.2.</strong> B - References</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -152,8 +152,7 @@
 <p><a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">RLN Overview</a></p>
 <p><a href="https://hackmd.io/@aeAuSD7mSCKofwwx445eAQ/BJcfDByNF">RLN Spec</a></p>
 <p><a href="https://rfc.vac.dev/spec/32/">VAC RLN Spec</a></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="under-the-hood"><a class="header" href="#under-the-hood">Under the hood</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="circom-circuit-for-rln"><a class="header" href="#circom-circuit-for-rln">Circom Circuit for RLN</a></h1>
+<h1 id="circom-circuit-for-rln"><a class="header" href="#circom-circuit-for-rln">Circom Circuit for RLN</a></h1>
 <pre class="mermaid">flowchart TB
 
     subgraph Generate Secret Key
@@ -196,9 +195,20 @@
     end
 
 </pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="under-the-hood"><a class="header" href="#under-the-hood">Under the hood</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="uses"><a class="header" href="#uses">Uses</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-use"><a class="header" href="#how-to-use">How to use</a></h1>
+<p>This section provides information on how to use <strong>RLN</strong> in your project:</p>
+<ul>
+<li>JavaScript RLN (for <a href="https://github.com/Rate-Limiting-Nullifier/rlnjs">rln-js</a>)</li>
+<li>Rust RLN (for <a href="https://github.com/vacp2p/zerokit/tree/master/rln">zerokit-rln</a>)</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="theory"><a class="header" href="#theory">Theory</a></h1>
+<p>This section provides theoretical information that underpins <strong>RLN</strong>.</p>
+<p>Here we'll discuss:</p>
+<ul>
+<li>Shamir's Secret Sharing</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shamirs-secret-sharing-scheme"><a class="header" href="#shamirs-secret-sharing-scheme">Shamirs Secret Sharing Scheme</a></h1>
 <p><em>Shamirs Secret Sharing</em> allows to split the secret to <code>n</code> parts and restore it upon presentation any <code>m</code> parts (<code>m &lt;= n</code>)</p>
 <p><a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing">Sharmir's Secret Sharing wikipedia</a> is a good reference to understand the concept.</p>
@@ -286,7 +296,11 @@
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
-<p>The following sections contain reference material you may find useful.</p>
+<p>The following sections contain reference material you may find useful:</p>
+<ul>
+<li>Terminology</li>
+<li>References</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="terminology"><a class="header" href="#terminology">Terminology</a></h1>
 <div class="table-wrapper"><table><thead><tr><th>Term</th><th>Description</th></tr></thead><tbody>
 <tr><td>ZK-SNARK</td><td><a href="https://z.cash/technology/zksnarks/">z.cash/technology/zksnarks/</a></td></tr>
