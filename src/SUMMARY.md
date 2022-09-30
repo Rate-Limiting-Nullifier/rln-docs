@@ -3,7 +3,6 @@
 - [Overview](./overview.md)
   - [What is RLN](./what_is_rln.md)
   - [Under the hood](./under_the_hood.md)
-    - [Circom circuit](./rln_circuit.md)
   - [Uses](./uses.md)
 - [How to use](./how_to_use.md)
   - [JavaScript RLN]()
