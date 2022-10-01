@@ -2,7 +2,7 @@
 
 Term | Description
 ---- | -----------
-ZK-SNARK | [z.cash/technology/zksnarks/](https://z.cash/technology/zksnarks/)
+zkSNARK | Proof construction where one can prove possession of certain information, e.g. a secret key, without revealing that information, and without any interaction between the prover and verifier.
 Stake | Financial or social stake required for registering in the RLN applications. Common stake examples are: locking cryptocurrency (financial), linking reputable social identity.
 Identity secret | An array of two unique random components (identity nullifier and identity trapdoor), which must be kept private by the user. Secret hash and identity commitment are derived from this array.
 Identity nullifier | Random 32 byte value used as component for identity secret generation.
