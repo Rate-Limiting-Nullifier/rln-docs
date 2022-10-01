@@ -148,10 +148,12 @@
 <li><strong>RLN</strong> uses</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="what-is-rate-limiting-nullifier"><a class="header" href="#what-is-rate-limiting-nullifier">What is Rate-Limiting Nullifier?</a></h1>
-<p><a href="https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009">Idea was proposed by Barry WhiteHat</a></p>
-<p><a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">RLN Overview</a></p>
-<p><a href="https://hackmd.io/@aeAuSD7mSCKofwwx445eAQ/BJcfDByNF">RLN Spec</a></p>
-<p><a href="https://rfc.vac.dev/spec/32/">VAC RLN Spec</a></p>
+<p><em>This topic is a part of complete <a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">overview</a> by Blagoj</em>.</p>
+<hr />
+<p><strong>RLN</strong> is a construct based on zero-knowledge proofs that enables spam prevention mechanism for decentralized, anonymous environments. In anonymous environments, the identity of the entities is unknown.</p>
+<p>The anonymity property opens up the possibility for spam attack and sybil attack vectors for certain applications, which could seriously degrade the user experience and the overall functioning of the application. For example, imagine a chat application, where users are anonymous. Now, everyone can write unlimited number of spam messages, while we don't have ability to kick this member, because the spammer is anonymous. </p>
+<p><strong>RLN</strong> helps us identify and &quot;kick&quot; the spammer.</p>
+<p>Moreover RLN can be useful not only to prevent a spam attacks, but in general, to limit users (in anonymous environments) in the number of actions (f.e. to vote or to make a bid).</p>
 <h1 id="circom-circuit-for-rln"><a class="header" href="#circom-circuit-for-rln">Circom Circuit for RLN</a></h1>
 <pre class="mermaid">flowchart TB
 
@@ -196,7 +198,11 @@
 
 </pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="under-the-hood"><a class="header" href="#under-the-hood">Under the hood</a></h1>
+<p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we need to represent the protocol in R1CS (as we use Groth16). Circom DSL was chosen for this. This section provides an explanation of RLN circuits.</em></p>
+<h2 id="circuits"><a class="header" href="#circuits">Circuits</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="uses"><a class="header" href="#uses">Uses</a></h1>
+<h2 id="zk-chat"><a class="header" href="#zk-chat">zk-chat</a></h2>
+<p>https://github.com/njofce/zk-chat</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="how-to-use"><a class="header" href="#how-to-use">How to use</a></h1>
 <p>This section provides information on how to use <strong>RLN</strong> in your project:</p>
 <ul>
@@ -303,7 +309,7 @@
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="terminology"><a class="header" href="#terminology">Terminology</a></h1>
 <div class="table-wrapper"><table><thead><tr><th>Term</th><th>Description</th></tr></thead><tbody>
-<tr><td>ZK-SNARK</td><td><a href="https://z.cash/technology/zksnarks/">z.cash/technology/zksnarks/</a></td></tr>
+<tr><td>zkSNARK</td><td>Proof construction where one can prove possession of certain information, e.g. a secret key, without revealing that information, and without any interaction between the prover and verifier.</td></tr>
 <tr><td>Stake</td><td>Financial or social stake required for registering in the RLN applications. Common stake examples are: locking cryptocurrency (financial), linking reputable social identity.</td></tr>
 <tr><td>Identity secret</td><td>An array of two unique random components (identity nullifier and identity trapdoor), which must be kept private by the user. Secret hash and identity commitment are derived from this array.</td></tr>
 <tr><td>Identity nullifier</td><td>Random 32 byte value used as component for identity secret generation.</td></tr>
@@ -317,10 +323,26 @@
 <tr><td>Merkle proof</td><td>Proof that a user is member of the RLN membership tree.</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="references"><a class="header" href="#references">References</a></h1>
-<p><a href="https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009">Idea was proposed by Barry WhiteHat</a></p>
-<p><a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">RLN Overview</a></p>
-<p><a href="https://hackmd.io/@aeAuSD7mSCKofwwx445eAQ/BJcfDByNF">RLN Spec</a></p>
+<ul>
+<li>
+<p><a href="https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009">First proposal of RLN by Barry WhiteHat</a></p>
+</li>
+<li>
+<p><a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">RLN Overview by Blagoj</a></p>
+</li>
+<li>
+<p><a href="https://hackmd.io/@aeAuSD7mSCKofwwx445eAQ/BJcfDByNF">Demo RLN Spec</a></p>
+</li>
+<li>
 <p><a href="https://rfc.vac.dev/spec/32/">VAC RLN Spec</a></p>
+</li>
+<li>
+<p><a href="https://vitalik.ca/general/2016/12/10/qap.html">Understand zkSNARK</a></p>
+</li>
+<li>
+<p><a href="https://docs.circom.io/">Circom docs</a></p>
+</li>
+</ul>
 
                     </main>
 

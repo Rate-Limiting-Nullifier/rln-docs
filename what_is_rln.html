@@ -135,10 +135,12 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="what-is-rate-limiting-nullifier"><a class="header" href="#what-is-rate-limiting-nullifier">What is Rate-Limiting Nullifier?</a></h1>
-<p><a href="https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009">Idea was proposed by Barry WhiteHat</a></p>
-<p><a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">RLN Overview</a></p>
-<p><a href="https://hackmd.io/@aeAuSD7mSCKofwwx445eAQ/BJcfDByNF">RLN Spec</a></p>
-<p><a href="https://rfc.vac.dev/spec/32/">VAC RLN Spec</a></p>
+<p><em>This topic is a part of complete <a href="https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d">overview</a> by Blagoj</em>.</p>
+<hr />
+<p><strong>RLN</strong> is a construct based on zero-knowledge proofs that enables spam prevention mechanism for decentralized, anonymous environments. In anonymous environments, the identity of the entities is unknown.</p>
+<p>The anonymity property opens up the possibility for spam attack and sybil attack vectors for certain applications, which could seriously degrade the user experience and the overall functioning of the application. For example, imagine a chat application, where users are anonymous. Now, everyone can write unlimited number of spam messages, while we don't have ability to kick this member, because the spammer is anonymous. </p>
+<p><strong>RLN</strong> helps us identify and &quot;kick&quot; the spammer.</p>
+<p>Moreover RLN can be useful not only to prevent a spam attacks, but in general, to limit users (in anonymous environments) in the number of actions (f.e. to vote or to make a bid).</p>
 <h1 id="circom-circuit-for-rln"><a class="header" href="#circom-circuit-for-rln">Circom Circuit for RLN</a></h1>
 <pre class="mermaid">flowchart TB
 
