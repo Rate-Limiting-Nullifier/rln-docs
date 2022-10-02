@@ -23,6 +23,7 @@ jobs:
           use-opengh: true
       - run: mdbook build
       - run: cp -f ./src/images/favicon.svg ./book/
+      - run: cp -f ./src/images/favicon.png ./book/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
