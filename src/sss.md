@@ -1,4 +1,4 @@
-# Shamirs Secret Sharing Scheme
+# Shamir's Secret Sharing Scheme
 
 *Shamirs Secret Sharing* allows to split the secret to `n` parts and restore it upon presentation any `m` parts (`m <= n`)
 
