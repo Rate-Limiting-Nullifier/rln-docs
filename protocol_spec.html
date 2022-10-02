@@ -135,7 +135,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="technical-side-of-rln"><a class="header" href="#technical-side-of-rln">Technical side of RLN</a></h1>
-<p><em>This topic is a less strict version of specifications. If you want more formal description, you can find specs in the <a href="./references.html">references</a></em></p>
+<p><em>This topic is a less strict version of specifications. If you want more formal description, you can find specs in the <a href="./references.html">references</a>. Also, if you're not familiar with Shamir's Secret Sharing scheme, you can <a href="./sss.html">read it here</a>.</em></p>
 <hr />
 <p>As it's been said <strong>RLN</strong> consists of three parts:</p>
 <ul>
@@ -145,11 +145,26 @@
 </ul>
 <p>Well, let's discuss them.</p>
 <h2 id="user-registration"><a class="header" href="#user-registration">User registration</a></h2>
-<p>First part of <strong>RLN</strong> is registration. There is nothing special in <strong>RLN</strong> registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create Merkle Tree and every participant must submit the <code>commitment</code> and place it in the Merkle Tree, and after that to interact with the app every participant will create zkProof's, that she is a <em>member of the tree</em>.</p>
-<p>We'll use <em>Incremental Merkle Tree</em>, as it more <em>GAS-effective</em>.</p>
-<p>The slight difference is that we must enable <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). Thus, generation of the <code>commitment</code> is different.</p>
-<p>Each member randomly generate secret key, that is denoted by <code>a_0</code>. Identity commitment <code>q</code> is the hash (Poseidon) of the secret key: <code>q = Poseidon(a_0)</code>.</p>
-<p>RLN would have no sense if there was no punishment for spam, that's why to become a member a user have to provide a certain form of stake.</p>
+<p>First part of <strong>RLN</strong> is registration. There is nothing special in <strong>RLN</strong> registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create Merkle Tree and every participant must submit the <code>commitment</code> and place it in the Merkle Tree, and after that to interact with the app every participant will create zkProof's, that he is a <em>member of the tree</em> (we use <em>Incremental Merkle Tree</em>, as it more <em>GAS-effective</em>).</p>
+<p>So, each member randomly generate secret key, that is denoted by <code>a_0</code>. Identity commitment <code>q</code> is the hash (Poseidon) of the secret key: <code>q = Poseidon(a_0)</code>.</p>
+<p><strong>RLN</strong> would have no sense if there was no punishment for spam, that's why to become a member a user have to provide a certain form of stake. So, whoever has our <code>a_0</code> can &quot;slash&quot; us. </p>
+<p>The slight difference is that we must enable <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). We need to come up with polynomial. For simplicity we use linear polynomial (e.g. <code>f(x) = kx + b</code>). Therefore, having two points we can recover the polynomial. </p>
+<p>Our polynomial will be: <code>A(x) = (a_0, a_1)</code>, where <code>a_1 = Poseidon(a_0, epoch)</code>.</p>
+<p>Less strict: <code>A(x) = a_1 * x + a_0</code>.</p>
+<p><code>epoch</code> is just a simple identificator (also called <em>external nullifier</em>). And each epoch there is a polynomial with new <code>a_1</code> and same <code>a_0</code>. </p>
+<h2 id="signalling"><a class="header" href="#signalling">Signalling</a></h2>
+<p>Now, that the user is registered, he wants to interact with the system. Imagine, that the system is an <em>anonymous chat</em> and the interaction is the sending of messages. 
+So, to send a message user have to come up with <em>share</em> - the point <code>(x, y)</code> on her polynomial. 
+We denote: <code>x = Poseidon(message), and y = A(x)</code>. </p>
+<p>Thus, if in the same epoch user sends more than one message, his polynomial, and therefore his secret (<code>a_0</code>) can be recovered.</p>
+<p>Of course, we somehow must prove that our <code>share = (x, y)</code> is valid (that this is really a point on our <code>polynomial = A(x)</code>), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.</p>
+<h2 id="slashing"><a class="header" href="#slashing">Slashing</a></h2>
+<p>As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash him and take his stake.</p>
+<h2 id="some-important-notes"><a class="header" href="#some-important-notes">Some important notes</a></h2>
+<p>There are also <code>nullifier</code> and <code>rln_identifier</code> which can be found in the <strong>RLN</strong> protocol/circuits.</p>
+<p>So, <code>rln_identifier</code> is just a random value, that's unique per <strong>RLN</strong> app. It's used for additional cross-application security - to protect the user secrets being compromised if they use the same credentials accross different <strong>RLN</strong> apps. If <code>rln_identifier</code> is not present, the user uses the same credentials and sends a different message for two different <strong>RLN</strong> apps using the same epoch, then their secret key can be revealed. With adding the <code>rln_identifier</code> field we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute force different combinations of x and y shares for different nullifiers.</p>
+<p>Now, imagine, there are a lot of users sending messages and after each received message we need to check if any member can be slashed. For that we use all combinations of received <em>shares</em> and try to recover the polynomial. This is naive and non-optimal way. What if we have some mechanism, which will tell us about the connection between a person and his messages, while not revealing him.
+For that we can use <code>nullifier</code>. <code>nullifier = Poseidon(a_1, rln_identifier)</code> and it's public, thus, if user sends more than one message, it will be immediately visible to everyone.</p>
 <h1 id="diagram"><a class="header" href="#diagram">Diagram</a></h1>
 <pre class="mermaid">flowchart TB
 
