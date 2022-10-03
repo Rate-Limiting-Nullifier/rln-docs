@@ -213,6 +213,7 @@ We denote: <code>x = Poseidon(message), and y = A(x)</code>. </p>
 <p>So, <code>rln_identifier</code> is just a random value, that's unique per <strong>RLN</strong> app. It's used for additional cross-application security - to protect the user secrets being compromised if they use the same credentials accross different <strong>RLN</strong> apps. If <code>rln_identifier</code> is not present, the user uses the same credentials and sends a different message for two different <strong>RLN</strong> apps using the same epoch, then their secret key can be revealed. With adding the <code>rln_identifier</code> field we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute force different combinations of x and y shares for different nullifiers.</p>
 <p>Now, imagine, there are a lot of users sending messages and after each received message we need to check if any member can be slashed. For that we use all combinations of received <em>shares</em> and try to recover the polynomial. This is naive and non-optimal way. What if we have some mechanism, which will tell us about the connection between a person and his messages, while not revealing him.
 For that we can use <code>nullifier</code>. <code>nullifier = Poseidon(a_1, rln_identifier)</code> and it's public, thus, if user sends more than one message, it will be immediately visible to everyone.</p>
+<p>Also, in our example (and actually current <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation) we use linear polynomial, but SSS allows us to use various degree polynomials, therefore we can implement a protocol, where more than one signal can be sent in one epoch. For that you can read <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a> by Blagoj; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree poynomials too.</p>
 <h1 id="diagram"><a class="header" href="#diagram">Diagram</a></h1>
 <pre class="mermaid">flowchart TB
 
@@ -258,6 +259,64 @@ For that we can use <code>nullifier</code>. <code>nullifier = Poseidon(a_1, rln_
 </pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
 <p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we need to represent the protocol in R1CS (as we use Groth16). Circom DSL was chosen for this. This section provides an explanation of <strong>RLN</strong> circuits.</em></p>
+<hr />
+<p><strong>RLN</strong> circuits implement the logic described in <a href="./protocol_spec.html">previous topic</a>.</p>
+<h2 id="merkle-tree-circuit"><a class="header" href="#merkle-tree-circuit">Merkle Tree circuit</a></h2>
+<p>One of the key component of <strong>RLN</strong> is <em>Incremental Merkle Tree</em>.
+Let's look at the <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/incrementalMerkleTree.circom">implementation</a>.</p>
+<p>At the beginning of the file we denote that we use second version of Circom and include two helper <em>zk-gadgets</em>:</p>
+<pre><code>pragma circom 2.0.0;
+
+include &quot;../node_modules/circomlib/circuits/poseidon.circom&quot;;
+include &quot;../node_modules/circomlib/circuits/mux1.circom&quot;;
+</code></pre>
+<p><em>Poseidon</em> gadget is just the implementation of <em>Poseidon</em> hash function; <em>mux1</em> gadget will be described later.</p>
+<p>Next, we can see two implemented gadgets:</p>
+<pre><code>template PoseidonHashT3() {
+    var nInputs = 2;
+    signal input inputs[nInputs];
+    signal output out;
+
+    component hasher = Poseidon(nInputs);
+    for (var i = 0; i &lt; nInputs; i ++) {
+        hasher.inputs[i] &lt;== inputs[i];
+    }
+    out &lt;== hasher.out;
+}
+
+template HashLeftRight() {
+    signal input left;
+    signal input right;
+
+    signal output hash;
+
+    component hasher = PoseidonHashT3();
+    left ==&gt; hasher.inputs[0];
+    right ==&gt; hasher.inputs[1];
+
+    hash &lt;== hasher.out;
+}
+</code></pre>
+<p>These are helper gadgets to make the code more clean. <em>Poseidon</em> gadget is implemented with the ability to take a different number of arguments. We use <code>PoseidonHashT3()</code> to initialize it like a function with two arguments. And <code>HashLeftRight</code> use <code>PoseidonHashT3</code> in more &quot;readable&quot; way: it takes two inputs <code>left</code> and <code>right</code> and outputs the result of calculation.</p>
+<p>Next comes the core of Merkle Tree gadget:</p>
+<pre><code>template MerkleTreeInclusionProof(n_levels) {
+    signal input leaf;
+    signal input path_index[n_levels];
+    signal input path_elements[n_levels][1];
+    signal output root;
+
+    component hashers[n_levels];
+    component mux[n_levels];
+
+    signal levelHashes[n_levels + 1];
+    levelHashes[0] &lt;== leaf;
+
+    ...
+
+    root &lt;== levelHashes[n_levels];
+}
+</code></pre>
+<p>Here we have three inputs: <code>leaf</code>, <code>path_index</code> and <code>path_elements</code></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="uses"><a class="header" href="#uses">Uses</a></h1>
 <h2 id="zk-chat"><a class="header" href="#zk-chat">zk-chat</a></h2>
 <p>https://github.com/njofce/zk-chat</p>
@@ -380,6 +439,7 @@ For that we can use <code>nullifier</code>. <code>nullifier = Poseidon(a_1, rln_
 <tr><td>RLN Identifier</td><td>Random finite field value unique per RLN app. It is used for additional cross-application security. The role of the RLN identifier is protection of the user secrets being compromised if signals are being generated with the same credentials at different apps.</td></tr>
 <tr><td>RLN membership tree</td><td>Merkle tree data structure, filled with identity commitments of the users. Serves as a data structure that ensures user registrations.</td></tr>
 <tr><td>Merkle proof</td><td>Proof that a user is member of the RLN membership tree.</td></tr>
+<tr><td>zk-gadget</td><td></td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="references"><a class="header" href="#references">References</a></h1>
 <ul>

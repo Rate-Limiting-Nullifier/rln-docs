@@ -136,6 +136,64 @@
                     <main>
                         <h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
 <p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we need to represent the protocol in R1CS (as we use Groth16). Circom DSL was chosen for this. This section provides an explanation of <strong>RLN</strong> circuits.</em></p>
+<hr />
+<p><strong>RLN</strong> circuits implement the logic described in <a href="./protocol_spec.html">previous topic</a>.</p>
+<h2 id="merkle-tree-circuit"><a class="header" href="#merkle-tree-circuit">Merkle Tree circuit</a></h2>
+<p>One of the key component of <strong>RLN</strong> is <em>Incremental Merkle Tree</em>.
+Let's look at the <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/incrementalMerkleTree.circom">implementation</a>.</p>
+<p>At the beginning of the file we denote that we use second version of Circom and include two helper <em>zk-gadgets</em>:</p>
+<pre><code>pragma circom 2.0.0;
+
+include &quot;../node_modules/circomlib/circuits/poseidon.circom&quot;;
+include &quot;../node_modules/circomlib/circuits/mux1.circom&quot;;
+</code></pre>
+<p><em>Poseidon</em> gadget is just the implementation of <em>Poseidon</em> hash function; <em>mux1</em> gadget will be described later.</p>
+<p>Next, we can see two implemented gadgets:</p>
+<pre><code>template PoseidonHashT3() {
+    var nInputs = 2;
+    signal input inputs[nInputs];
+    signal output out;
+
+    component hasher = Poseidon(nInputs);
+    for (var i = 0; i &lt; nInputs; i ++) {
+        hasher.inputs[i] &lt;== inputs[i];
+    }
+    out &lt;== hasher.out;
+}
+
+template HashLeftRight() {
+    signal input left;
+    signal input right;
+
+    signal output hash;
+
+    component hasher = PoseidonHashT3();
+    left ==&gt; hasher.inputs[0];
+    right ==&gt; hasher.inputs[1];
+
+    hash &lt;== hasher.out;
+}
+</code></pre>
+<p>These are helper gadgets to make the code more clean. <em>Poseidon</em> gadget is implemented with the ability to take a different number of arguments. We use <code>PoseidonHashT3()</code> to initialize it like a function with two arguments. And <code>HashLeftRight</code> use <code>PoseidonHashT3</code> in more &quot;readable&quot; way: it takes two inputs <code>left</code> and <code>right</code> and outputs the result of calculation.</p>
+<p>Next comes the core of Merkle Tree gadget:</p>
+<pre><code>template MerkleTreeInclusionProof(n_levels) {
+    signal input leaf;
+    signal input path_index[n_levels];
+    signal input path_elements[n_levels][1];
+    signal output root;
+
+    component hashers[n_levels];
+    component mux[n_levels];
+
+    signal levelHashes[n_levels + 1];
+    levelHashes[0] &lt;== leaf;
+
+    ...
+
+    root &lt;== levelHashes[n_levels];
+}
+</code></pre>
+<p>Here we have three inputs: <code>leaf</code>, <code>path_index</code> and <code>path_elements</code></p>
 
                     </main>
 
