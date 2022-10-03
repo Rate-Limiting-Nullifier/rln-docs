@@ -12,7 +12,7 @@ ___
 Well, let's discuss them.
 
 ## User registration
-The first part of **RLN** is registration. There is nothing special in **RLN** registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create Merkle Tree, and every participant must submit the `commitment` and place it in the Merkle Tree, and after that to interact with the app every participant will create zkProof's, that he is a *member of the tree* (we use *Incremental Merkle Tree*, as it more *GAS-effective*).
+The first part of **RLN** is registration. There is nothing special in **RLN** registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create a Merkle Tree, and every participant must submit a `commitment` and place it in the Merkle Tree, and after that to interact with the app every participant will create a zkProof's, that they are a *member of the tree* (we use an *Incremental Merkle Tree*, as it more *GAS efficient*).
 
 So, each member generates a secret key, denoted by `a_0`. Identity commitment `q` is the hash (Poseidon) of the secret key: `q = Poseidon(a_0)`.
 
