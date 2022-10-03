@@ -46,6 +46,8 @@ So, `rln_identifier` is just a random value, that's unique per **RLN** app. It's
 Now, imagine, there are a lot of users sending messages and after each received message we need to check if any member can be slashed. For that we use all combinations of received *shares* and try to recover the polynomial. This is naive and non-optimal way. What if we have some mechanism, which will tell us about the connection between a person and his messages, while not revealing him.
 For that we can use `nullifier`. `nullifier = Poseidon(a_1, rln_identifier)` and it's public, thus, if user sends more than one message, it will be immediately visible to everyone.
 
+Also, in our example (and actually current [zk-chat](https://github.com/njofce/zk-chat) implementation) we use linear polynomial, but SSS allows us to use various degree polynomials, therefore we can implement a protocol, where more than one signal can be sent in one epoch. For that you can read [specification](https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view) by Blagoj; there are also [circuits](https://github.com/privacy-scaling-explorations/rln/tree/master/circuits) implemented for various degree poynomials too.
+
 # Diagram
 
 ```mermaid

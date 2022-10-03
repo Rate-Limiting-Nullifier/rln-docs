@@ -14,3 +14,4 @@ Signal hash | Keccak hash of the signal, used as an input in the RLN circuit.
 RLN Identifier | Random finite field value unique per RLN app. It is used for additional cross-application security. The role of the RLN identifier is protection of the user secrets being compromised if signals are being generated with the same credentials at different apps.
 RLN membership tree | Merkle tree data structure, filled with identity commitments of the users. Serves as a data structure that ensures user registrations.
 Merkle proof | Proof that a user is member of the RLN membership tree.
+zk-gadget | 
