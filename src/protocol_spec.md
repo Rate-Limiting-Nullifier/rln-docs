@@ -36,7 +36,7 @@ Thus, if the same epoch user sends more than one message, their polynomial and, 
 Of course, we somehow must prove that our `share = (x, y)` is valid (that this is really a point on our `polynomial = A(x)`), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.
 
 ## Slashing
-As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash him and take his stake.
+As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake.
 
 ## Some important notes
 There are also `nullifier` and `rln_identifier`, which can be found in the **RLN** protocol/circuits.
