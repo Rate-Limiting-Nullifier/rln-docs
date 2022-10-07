@@ -185,6 +185,10 @@
 <div style="break-before: page; page-break-before: always;"></div><h1 id="technical-side-of-rln"><a class="header" href="#technical-side-of-rln">Technical side of RLN</a></h1>
 <p><em>This topic is a less strict version of specifications. If you want a more formal description, you can find specs in the <a href="./references.html">references</a>. Also, if you're unfamiliar with Shamir's Secret Sharing scheme, you can <a href="./sss.html">read it here</a>.</em></p>
 <hr />
+<p><img src="./images/rln-circuit.png" alt="alt text" /></p>
+<p align="center">
+  <i>Under the hood: The <b>RLN</b> Circom Circuit</i>
+</p>
 <p><strong>RLN</strong> consists of three parts:</p>
 <ul>
 <li>User registration</li>
@@ -214,8 +218,6 @@ We denote: <code>x = Poseidon(message), and y = A(x)</code>. </p>
 <p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public <code>nullifier</code> (<code>nullifier = Poseidon(a_1, rln_identifier)</code>), so if a user sends more than one message, it will be immediately visible to everyone.</p>
 <p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
 <p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
-<h1 id="diagram"><a class="header" href="#diagram">Diagram</a></h1>
-<p><img src="./images/rln-circuit.png" alt="alt text" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
 <p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we must represent the protocol in <a href="https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs">R1CS</a> (as we use <a href="https://www.zeroknowledgeblog.com/index.php/groth16">Groth16</a>). <a href="https://docs.circom.io/">Circom</a> was chosen for this. This section explains <strong>RLN</strong> circuits for the linear polynomial case (one message per epoch). You can find implementation for the general case <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/nrln-base.circom">here</a></em></p>
 <hr />
