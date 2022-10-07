@@ -135,21 +135,21 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
-<p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we need to represent the protocol in R1CS (as we use Groth16). Circom DSL was chosen for this. This section provides an explanation of <strong>RLN</strong> circuits for the linear polynomial case (one message per epoch). You can find implementation for the general case <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/nrln-base.circom">here</a></em></p>
+<p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we must represent the protocol in <a href="https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs">R1CS</a> (as we use <a href="https://www.zeroknowledgeblog.com/index.php/groth16">Groth16</a>). <a href="https://docs.circom.io/">Circom</a> was chosen for this. This section explains <strong>RLN</strong> circuits for the linear polynomial case (one message per epoch). You can find implementation for the general case <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/nrln-base.circom">here</a></em></p>
 <hr />
 <p><strong>RLN</strong> circuits implement the logic described in <a href="./protocol_spec.html">previous topic</a>.</p>
 <h2 id="merkle-tree-circuit"><a class="header" href="#merkle-tree-circuit">Merkle Tree circuit</a></h2>
-<p>One of the key component of <strong>RLN</strong> is <em>Incremental Merkle Tree</em>.
+<p>One of the critical components of <strong>RLN</strong> is the <em>Incremental Merkle Tree</em> for the membership tree. Any Merkle tree can be used, but we have chosen the Incremental Merkle Tree for gas efficiency.
 Let's look at the <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/incrementalMerkleTree.circom">implementation</a>.</p>
-<p>At the beginning of the file we denote that we use second version of Circom and include two helper <em>zk-gadgets</em>:</p>
-<pre><code>pragma circom 2.0.0;
+<p>At the beginning of the file, we denote that we use Circom 2.0 and include two helper <em>zk-gadgets</em>:</p>
+<pre><code class="language-circom">pragma circom 2.0.0;
 
 include &quot;../node_modules/circomlib/circuits/poseidon.circom&quot;;
 include &quot;../node_modules/circomlib/circuits/mux1.circom&quot;;
 </code></pre>
-<p><em>Poseidon</em> gadget is just the implementation of <em>Poseidon</em> hash function; <em>mux1</em> gadget will be described later.</p>
+<p><em>Poseidon</em> gadget is just the implementation of the <em>Poseidon</em> hash function; the <em>mux1</em> gadget will be described later.</p>
 <p>Next, we can see two implemented gadgets:</p>
-<pre><code>template PoseidonHashT3() {
+<pre><code class="language-circom">template PoseidonHashT3() {
     var nInputs = 2;
     signal input inputs[nInputs];
     signal output out;
@@ -174,9 +174,9 @@ template HashLeftRight() {
     hash &lt;== hasher.out;
 }
 </code></pre>
-<p>These are helper gadgets to make the code more clean. <em>Poseidon</em> gadget is implemented with the ability to take a different number of arguments. We use <code>PoseidonHashT3()</code> to initialize it like a function with two arguments. And <code>HashLeftRight</code> use <code>PoseidonHashT3</code> in more &quot;readable&quot; way: it takes two inputs <code>left</code> and <code>right</code> and outputs the result of calculation.</p>
-<p>Next comes the core of Merkle Tree gadget:</p>
-<pre><code>template MerkleTreeInclusionProof(n_levels) {
+<p>These are helper gadgets to make the code more clean. <em>Poseidon</em> gadget is implemented with the ability to take a different number of arguments. We use <code>PoseidonHashT3()</code> to initialize it like a function with two arguments. And <code>HashLeftRight</code> use <code>PoseidonHashT3</code> in a more &quot;readable&quot; way: it takes two inputs, <code>left</code> and <code>right,</code> and outputs the result of the calculation.</p>
+<p>Next comes the core of the Merkle Tree gadget:</p>
+<pre><code class="language-circom">template MerkleTreeInclusionProof(n_levels) {
     signal input leaf;
     signal input path_index[n_levels];
     signal input path_elements[n_levels][1];
@@ -193,15 +193,15 @@ template HashLeftRight() {
     root &lt;== levelHashes[n_levels];
 }
 </code></pre>
-<p>Here we have three inputs: <code>leaf</code>, <code>path_index</code> and <code>path_elements</code>. </p>
-<p><code>path_index</code> is the position of the leaf represented in binary. We need binary representation of position to understand the hashing path from leaf to root (more on that <em><a href="">&quot;3. Recursive Incremental Merkle Tree Algorithm, page 4&quot;</a></em>). </p>
+<p>Here we have three inputs: <code>leaf,</code> <code>path_index,</code> and <code>path_elements.</code> </p>
+<p><code>path_index</code> is the position of the leaf represented in binary. We need the binary representation of the position in the Merkle tree to understand the hashing path from the leaf to the root (more on that <em><a href="">&quot;3. Recursive Incremental Merkle Tree Algorithm, page 4&quot;</a></em>). </p>
 <p><code>path_elements</code> are sibling leaves that are part of Merkle Proof.</p>
 <p><code>leaf = Poseidon(identity_secret)</code>, so it's just <em>identity commitment</em>.</p>
 <p>There is a Merkle Tree hashing algorithm in the omitted part, no more than that.</p>
 <h2 id="rln-core"><a class="header" href="#rln-core">RLN core</a></h2>
-<p>RLN circuit is the implementation of <strong>RLN</strong> logic itself (which in turn uses <em>Merkle Tree</em> gadget). You can find the implementation <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln-base.circom">here</a>.</p>
+<p>RLN circuit is the implementation of <strong>RLN</strong> logic itself (which in turn uses the <em>Merkle Tree</em> gadget). You can find the implementation <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln-base.circom">here</a>.</p>
 <p>So, let's start with helper gadgets:</p>
-<pre><code>template CalculateIdentityCommitment() {
+<pre><code class="language-circom">template CalculateIdentityCommitment() {
     signal input identity_secret;
     signal output out;
 
@@ -237,8 +237,8 @@ template CalculateNullifier() {
 }
 </code></pre>
 <p>It's easy to understand these samples: <code>CalculateIdentityCommitment()</code> is used to calculate the identity commitment. It takes secret and outputs the commitment. <code>CalculateA1()</code> and <code>CalculateNullifier()</code> are used to calculate <code>a_1</code> and <code>nullifier</code> (internal nullifier); they are implemented as it's described in <a href="./protocol_spec.html">previous topic</a>.</p>
-<p>Now, let's look at the core logic of <strong>RLN</strong> circuit. </p>
-<pre><code>...
+<p>Now, let's look at the core logic of the <strong>RLN</strong> circuit. </p>
+<pre><code class="language-circom">...
 
     signal input identity_secret;
     signal input path_elements[n_levels][LEAVES_PER_PATH_LEVEL];
@@ -254,15 +254,15 @@ template CalculateNullifier() {
 
 ...
 </code></pre>
-<p>So, here we have many inputs. Private inputs are: <code>identity_secret</code> (basically <code>a_0</code> from the polynomial), <code>path_elements[][]</code>, <code>identity_path_index[]</code>. Public inputs are: <code>x</code> (actually just the hash of a signal), <code>epoch</code>, <code>rln_identifier</code>. Outputs are: <code>y</code> (share of the secret), <code>root</code> of a Merkle Tree and <code>nullifier</code>.</p>
+<p>So, here we have many inputs. Private inputs are: <code>identity_secret</code> (basically <code>a_0</code> from the polynomial), <code>path_elements[][]</code>, <code>identity_path_index[]</code>. Public inputs are: <code>x</code> (actually just the hash of a signal), <code>epoch,</code> <code>rln_identifier.</code> Outputs are: <code>y' (share of the secret), </code>root<code>of a Merkle Tree, and</code>nullifier.`</p>
 <p><strong>RLN</strong> circuit consists of two checks:</p>
 <ul>
 <li>Membership in Merkle Tree</li>
 <li>Correctness of secret share</li>
 </ul>
 <h3 id="membership-in-merkle-tree"><a class="header" href="#membership-in-merkle-tree">Membership in Merkle Tree</a></h3>
-<p>To check membership in a Merkle Tree we can just simply use previously described Merkle Tree gadget:</p>
-<pre><code>...
+<p>To check membership in a Merkle Tree, we can simply use the previously described Merkle Tree gadget:</p>
+<pre><code class="language-circom">...
 
     component identity_commitment = CalculateIdentityCommitment();
     identity_commitment.identity_secret &lt;== identity_secret;
@@ -281,12 +281,12 @@ template CalculateNullifier() {
 
 ...
 </code></pre>
-<p>Here we just calculating the <code>identity_commitment</code> and passing it along with sibling leaves and binary repr of the position to a Merkle Tree gadget. It gives us calculated root as an output and we can put the constraint on that:</p>
-<pre><code>root &lt;== inclusionProof.root;
+<p>Here we are calculating the <code>identity_commitment</code> and passing it along with sibling leaves and binary representation of the position to a Merkle Tree gadget. It gives us the calculated root as an output, and we can put the constraint on that:</p>
+<pre><code class="language-circom">root &lt;== inclusionProof.root;
 </code></pre>
 <h3 id="correctness-of-secret-share"><a class="header" href="#correctness-of-secret-share">Correctness of secret share</a></h3>
-<p>As we use linear polynomial we need to check that <code>y = a_1 * x + a_0</code> (<code>a_0</code> is identity secret). For that we need these constraints:</p>
-<pre><code>...
+<p>As we use linear polynomial we need to check that <code>y = a_1 * x + a_0</code> (<code>a_0</code> is identity secret). For that, we need these constraints:</p>
+<pre><code class="language-circom">...
 
     component a_1 = CalculateA1();
     a_1.a_0 &lt;== identity_secret;
@@ -296,8 +296,8 @@ template CalculateNullifier() {
 
 ...
 </code></pre>
-<p>To calculate and reveal <code>nullifier</code>:</p>
-<pre><code>...
+<p>To calculate and reveal the <code>nullifier</code>:</p>
+<pre><code class="language-circom">...
 
     component calculateNullifier = CalculateNullifier();
     calculateNullifier.a_1 &lt;== a_1.out;
@@ -308,15 +308,15 @@ template CalculateNullifier() {
 ...
 </code></pre>
 <h2 id="main-runner-of-the-circuits"><a class="header" href="#main-runner-of-the-circuits">Main runner of the circuits</a></h2>
-<p>Now the Circuits can be used as a gadgets. If we want to use it in our app we need to initialize it and have something like a <em>main</em> - starting point function. It can be found <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln.circom">here</a>.</p>
+<p>Now the Circuits can be used as gadgets. If we want to use it in our app, we need to initialize it and have a <em>main</em> - starting point function. It can be found <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln.circom">here</a>.</p>
 <p>The implementation is super basic:</p>
-<pre><code>pragma circom 2.0.0;
+<pre><code class="language-circom">pragma circom 2.0.0;
 
 include &quot;./rln-base.circom&quot;;
 
 component main {public [x, epoch, rln_identifier ]} = RLN(15);
 </code></pre>
-<p>That's the whole file:) Here we just need to list all public inputs (<code>x</code>, <code>epoch</code>, <code>rln_identifier</code>; the rest of the inputs are private). Also we set the depth of Merkle Tree = 15.</p>
+<p>That's the whole <strong>RLN</strong> Circom Circuit :) Here we just need to list all public inputs (<code>x,</code> <code>epoch,</code> <code>rln_identifier</code>; the rest of the inputs are private). Also, we set the depth of the Merkle Tree = 15 (max of 32768 members).</p>
 
                     </main>
 
