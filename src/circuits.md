@@ -12,7 +12,7 @@ One of the critical components of **RLN** is the *Incremental Merkle Tree* for t
 Let's look at the [implementation](https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/incrementalMerkleTree.circom).
 
 At the beginning of the file, we denote that we use Circom 2.0 and include two helper *zk-gadgets*:
-```circom
+```swift
 pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/poseidon.circom";
@@ -23,7 +23,7 @@ include "../node_modules/circomlib/circuits/mux1.circom";
 
 Next, we can see two implemented gadgets:
 
-```circom
+```swift
 template PoseidonHashT3() {
     var nInputs = 2;
     signal input inputs[nInputs];
@@ -53,7 +53,7 @@ template HashLeftRight() {
 These are helper gadgets to make the code more clean. *Poseidon* gadget is implemented with the ability to take a different number of arguments. We use `PoseidonHashT3()` to initialize it like a function with two arguments. And `HashLeftRight` use `PoseidonHashT3` in a more "readable" way: it takes two inputs, `left` and `right,` and outputs the result of the calculation.
 
 Next comes the core of the Merkle Tree gadget:
-```circom
+```swift
 template MerkleTreeInclusionProof(n_levels) {
     signal input leaf;
     signal input path_index[n_levels];
@@ -86,7 +86,7 @@ There is a Merkle Tree hashing algorithm in the omitted part, no more than that.
 RLN circuit is the implementation of **RLN** logic itself (which in turn uses the *Merkle Tree* gadget). You can find the implementation [here](https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln-base.circom).
 
 So, let's start with helper gadgets:
-```circom
+```swift
 template CalculateIdentityCommitment() {
     signal input identity_secret;
     signal output out;
@@ -126,7 +126,7 @@ template CalculateNullifier() {
 It's easy to understand these samples: `CalculateIdentityCommitment()` is used to calculate the identity commitment. It takes secret and outputs the commitment. `CalculateA1()` and `CalculateNullifier()` are used to calculate `a_1` and `nullifier` (internal nullifier); they are implemented as it's described in [previous topic](./protocol_spec.md).
 
 Now, let's look at the core logic of the **RLN** circuit. 
-```circom
+```swift
 ...
 
     signal input identity_secret;
@@ -152,7 +152,7 @@ So, here we have many inputs. Private inputs are: `identity_secret` (basically `
 
 ### Membership in Merkle Tree
 To check membership in a Merkle Tree, we can simply use the previously described Merkle Tree gadget:
-```circom
+```swift
 ...
 
     component identity_commitment = CalculateIdentityCommitment();
@@ -174,13 +174,13 @@ To check membership in a Merkle Tree, we can simply use the previously described
 ```
 Here we are calculating the `identity_commitment` and passing it along with sibling leaves and binary representation of the position to a Merkle Tree gadget. It gives us the calculated root as an output, and we can put the constraint on that:
 
-```circom
+```swift
 root <== inclusionProof.root;
 ```
 
 ### Correctness of secret share
 As we use linear polynomial we need to check that `y = a_1 * x + a_0` (`a_0` is identity secret). For that, we need these constraints:
-```circom
+```swift
 ...
 
     component a_1 = CalculateA1();
@@ -193,7 +193,7 @@ As we use linear polynomial we need to check that `y = a_1 * x + a_0` (`a_0` is 
 ```
 
 To calculate and reveal the `nullifier`:
-```circom
+```swift
 ...
 
     component calculateNullifier = CalculateNullifier();
@@ -209,7 +209,7 @@ To calculate and reveal the `nullifier`:
 Now the Circuits can be used as gadgets. If we want to use it in our app, we need to initialize it and have a *main* - starting point function. It can be found [here](https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln.circom).
 
 The implementation is super basic:
-```circom
+```swift
 pragma circom 2.0.0;
 
 include "./rln-base.circom";
