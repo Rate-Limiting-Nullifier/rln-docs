@@ -215,48 +215,7 @@ We denote: <code>x = Poseidon(message), and y = A(x)</code>. </p>
 <p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
 <p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
 <h1 id="diagram"><a class="header" href="#diagram">Diagram</a></h1>
-<pre class="mermaid">flowchart TB
-
-    subgraph Generate Secret Key
-      random0(Random 32 bytes) --&gt; a_0(Secret Key)
-      random1(Random 32 bytes) --&gt; a_0
-    end
-
-    subgraph RLN
-
-      subgraph Identity Commitment
-        a_0 --&gt; h0(Poseidon Hash)
-        h0 --&gt; q(Identity Commitment)
-      end
-
-      subgraph Calculate Internal Nullifier
-        a_0 --&gt; h1(Poseidon Hash)
-        epoch(Epoch) --&gt; h1
-        h1 --&gt; a_1
-        rln_identifier(RLN Identifier) --&gt; h2(Poseidon Hash)
-        a_1 --&gt; h2
-        h2 --&gt; nullifier(RLN Internal Nullifier)
-      end
-
-      subgraph Merkle Tree
-        q --&gt; merkle_tree_inclusion_proof(Merkle Tree Inclusion Proof)
-        merkle_tree_inclusion_proof --&gt; root(ZKP of Merkle Tree Root)
-      end
-
-      subgraph Shamirs Secret Scheme
-        a_0 --&gt; plus(+)
-        a_1 --&gt; multiply(*)
-        x(Hashed Messaage) --&gt; multiply
-        multiply --&gt; plus
-        plus --&gt; share_y
-      end
-
-        nullifier --&gt; proof(ZKP)
-        root --&gt; proof
-        share_y --&gt; proof
-    end
-
-</pre>
+<p><img src="./images/rln-circuit.png" alt="alt text" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
 <p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we must represent the protocol in <a href="https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs">R1CS</a> (as we use <a href="https://www.zeroknowledgeblog.com/index.php/groth16">Groth16</a>). <a href="https://docs.circom.io/">Circom</a> was chosen for this. This section explains <strong>RLN</strong> circuits for the linear polynomial case (one message per epoch). You can find implementation for the general case <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/nrln-base.circom">here</a></em></p>
 <hr />
