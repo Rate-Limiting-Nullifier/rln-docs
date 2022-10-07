@@ -4,6 +4,12 @@
 
 ___
 
+
+![alt text](./images/rln-circuit.png)
+<p align="center">
+  <i>Under the hood: The <b>RLN</b> Circom Circuit</i>
+</p>
+
 **RLN** consists of three parts:
 * User registration
 * User interaction (signaling)
@@ -48,7 +54,3 @@ Now, imagine there are a lot of users sending messages, and after each received 
 Also, in our example (and [zk-chat](https://github.com/njofce/zk-chat) implementation), we use linear polynomial, but [SSS](sss.md) allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. 
 
 To learn more, check out the [specification](https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view); there are also [circuits](https://github.com/privacy-scaling-explorations/rln/tree/master/circuits) implemented for various degree polynomials too.
-
-# Diagram
-
-![alt text](./images/rln-circuit.png)
