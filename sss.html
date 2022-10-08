@@ -166,6 +166,24 @@ which is the same polynomial.</p>
 <p>The same techique can be made with every polynomial. Main thing to remember is that we need \(n + 1\) points to interpolate \(n\)-degree polynomial.</p>
 <p>Now that we know how interpolation works, we can learn how it is used in SSS.</p>
 <h2 id="shamirs-secret-sharing"><a class="header" href="#shamirs-secret-sharing">Shamir's Secret Sharing</a></h2>
+<p>To create <strong>SSS</strong> construct we must choose \((k, n)\), where \(n\) is the number of shares we want to get from the secret and \(k\) is number of shares required to restore the secret. Degree of the &quot;secret&quot; polynomial is \(k - 1\) (if you don't understand why, you should reread previous part). 
+Let's try to construct <strong>SSS</strong> with an example.</p>
+<h3 id="sharing"><a class="header" href="#sharing">Sharing</a></h3>
+<ol>
+<li>Our secret = \(S = 30\) </li>
+<li>As linear polynomial used in current <strong>RLN</strong> implementations, let's set \(k = 2\) (2 points are enough to recover the polynomial); \(n\) is not that important, but we can make it any number, f.e. 3</li>
+<li>The secret polynomial is: \[f(x) = a_1 * x + a_0 \]
+where zero coefficient \(a_0 = S\), and \(a_1\) is some random number (f.e. 5); </li>
+<li>We must pick \(n = 3\) different points (shares) on that polynomial, for that we can pick three random \(x\) values (f.e. 5, 8, 16) and calculate \(f(x)\):
+\[f(5) = 5 * 5 + 30 = 55\]
+\[f(8) = 5 * 8 + 30 = 70 \]
+\[f(16) = 5 * 16 + 30 = 110 \]
+So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
+</ol>
+<h3 id="recovering"><a class="header" href="#recovering">Recovering</a></h3>
+<p>We can take any two shares to recover (as it was described in the interpolation section) the &quot;secret&quot; polynomial. Zero coefficient (\(a_0\)) is the secret \(S\).</p>
+<h2 id="important-notes"><a class="header" href="#important-notes">Important notes</a></h2>
+<p>Arithmetic in this topic is usual for us. However, in the real life <strong>SSS</strong> arithmetic is defined over some finite field. This means that all calculations are carried out modulo some big prime number (in fact, it happens by itself in the Circom, because the arithmetic there is defined over the finite field too, so we don't need to do nothing for that). </p>
 
                     </main>
 
