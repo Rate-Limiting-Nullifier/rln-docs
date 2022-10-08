@@ -181,7 +181,7 @@ where zero coefficient \(a_0 = S\), and \(a_1\) is some random number (f.e. 5); 
 So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
 </ol>
 <h3 id="recovering"><a class="header" href="#recovering">Recovering</a></h3>
-<p>We can take any two shares to recover (as it was described in the interpolation section) the &quot;secret&quot; polynomial. Zero coefficient (\(a_0\)) is the secret \(S\).</p>
+<p>We can take any two shares to recover (as it was described in the interpolation section) the &quot;secret&quot; polynomial. Zero coefficient (\(a_0\)) in the recovered polynomial is the secret \(S\).</p>
 <h2 id="important-notes"><a class="header" href="#important-notes">Important notes</a></h2>
 <p>Arithmetic in this topic is usual for us. However, in the real life <strong>SSS</strong> arithmetic is defined over some finite field. This means that all calculations are carried out modulo some big prime number (in fact, it happens by itself in the Circom, because the arithmetic there is defined over the finite field too, so we don't need to do nothing for that). </p>
 
