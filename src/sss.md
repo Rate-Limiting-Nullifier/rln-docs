@@ -55,7 +55,7 @@ where zero coefficient \\(a_0 = S\\), and \\(a_1\\) is some random number (f.e. 
 So, the shares are: \\((5, 55), (8, 70), (16, 110)\\)
 
 ### Recovering
-We can take any two shares to recover (as it was described in the interpolation section) the "secret" polynomial. Zero coefficient (\\(a_0\\)) is the secret \\(S\\).
+We can take any two shares to recover (as it was described in the interpolation section) the "secret" polynomial. Zero coefficient (\\(a_0\\)) in the recovered polynomial is the secret \\(S\\).
 
 ## Important notes
 Arithmetic in this topic is usual for us. However, in the real life **SSS** arithmetic is defined over some finite field. This means that all calculations are carried out modulo some big prime number (in fact, it happens by itself in the Circom, because the arithmetic there is defined over the finite field too, so we don't need to do nothing for that). 
