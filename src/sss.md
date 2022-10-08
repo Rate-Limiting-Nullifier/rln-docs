@@ -39,3 +39,23 @@ The same techique can be made with every polynomial. Main thing to remember is t
 Now that we know how interpolation works, we can learn how it is used in SSS.
 
 ## Shamir's Secret Sharing
+
+To create **SSS** construct we must choose \\((k, n)\\), where \\(n\\) is the number of shares we want to get from the secret and \\(k\\) is number of shares required to restore the secret. Degree of the "secret" polynomial is \\(k - 1\\) (if you don't understand why, you should reread previous part). 
+Let's try to construct **SSS** with an example.
+
+### Sharing
+1. Our secret = \\(S = 30\\) 
+2. As linear polynomial used in current **RLN** implementations, let's set \\(k = 2\\) (2 points are enough to recover the polynomial); \\(n\\) is not that important, but we can make it any number, f.e. 3
+3. The secret polynomial is: \\[f(x) = a_1 * x + a_0 \\]
+where zero coefficient \\(a_0 = S\\), and \\(a_1\\) is some random number (f.e. 5); 
+4. We must pick \\(n = 3\\) different points (shares) on that polynomial, for that we can pick three random \\(x\\) values (f.e. 5, 8, 16) and calculate \\(f(x)\\):
+\\[f(5) = 5 * 5 + 30 = 55\\]
+\\[f(8) = 5 * 8 + 30 = 70 \\]
+\\[f(16) = 5 * 16 + 30 = 110 \\]
+So, the shares are: \\((5, 55), (8, 70), (16, 110)\\)
+
+### Recovering
+We can take any two shares to recover (as it was described in the interpolation section) the "secret" polynomial. Zero coefficient (\\(a_0\\)) is the secret \\(S\\).
+
+## Important notes
+Arithmetic in this topic is usual for us. However, in the real life **SSS** arithmetic is defined over some finite field. This means that all calculations are carried out modulo some big prime number (in fact, it happens by itself in the Circom, because the arithmetic there is defined over the finite field too, so we don't need to do nothing for that). 
