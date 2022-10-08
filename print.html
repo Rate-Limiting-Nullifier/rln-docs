@@ -26,6 +26,8 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
         <!-- Provide site root to javascript -->
@@ -169,9 +171,9 @@
 <p>There are a number of use-cases for <strong>RLN</strong>, such as voting applications (1 vote per election), chat (one message per second), and rate-limiting cache access (CDN denial of service protection). The verifier can be a server for centralized applications or the other users for decentralized applications.</p>
 <p>The general anti-spam rule is usually in the form of: 
 <code>Users must not make more than X interactions per epoch.</code></p>
-<p>The epoch can be translated as a time interval of <code>Y</code> units of time unit <code>Z.</code> For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.</p>
-<p>We can implement this using <code>Shamir's Secret Sharing</code> scheme (<a href="./sss.html"><em>read more</em></a>), which allows you to split a secret (f.e. to <code>n</code> parts) and recover it when any <code>m' of </code>n<code> parts ('m &lt;= n</code>) are presented.</p>
-<p>Thus, users have to split their <code>secret_key</code> into <code>n</code> parts, and for every interaction, they have to reveal the new part of the <code>secret_key.</code> So, in addition to proving the membership in the <code>Merkle Tree,</code> users have to prove that the revealed part is truly the part of their <code>secret_key.</code></p>
+<p>The epoch can be translated as a time interval of <code>Y</code> units of time unit <code>Z</code>. For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.</p>
+<p>We can implement this using <em>Shamir's Secret Sharing</em> scheme (<a href="./sss.html"><em>read more</em></a>), which allows you to split a secret (f.e. to <code>n</code> parts) and recover it when any <code>m</code> of <code>n</code> parts <code>(m &lt;= n)</code> are presented.</p>
+<p>Thus, users have to split their <code>secret_key</code> into <code>n</code> parts, and for every interaction, they have to reveal the new part of the <code>secret_key.</code> So, in addition to proving the membership in the <em>Merkle Tree</em>, users have to prove that the revealed part is truly the part of their <code>secret_key.</code></p>
 <p>If they make more interactions than allowed per epoch, their secret key can be fully reconstructed.</p>
 <h3 id="user-removal-slashing"><a class="header" href="#user-removal-slashing">User removal (slashing)</a></h3>
 <p>The final property of the <strong>RLN</strong> mechanism is that it allows for the users to be removed from the membership tree by anyone that knows their secret key. The membership tree contains the identity commitments of all registered users. Users' identity commitment is derived from their secret key, and the secret key of the user is only revealed in a spam event (except for the scenarios where the original users want to remove themselves, which they can always do because they know their secret key). When an economic stake is present, the <strong>RLN</strong> mechanism can be implemented in a way that the spammer's stake is sent to the first user that correctly reports the spammer by providing the reconstructed secret key of the spammer as proof.</p>
@@ -198,24 +200,23 @@
 <p>Well, let's discuss them.</p>
 <h2 id="user-registration-1"><a class="header" href="#user-registration-1">User registration</a></h2>
 <p>The first part of <strong>RLN</strong> is registration. There is nothing special in <strong>RLN</strong> registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create a Merkle Tree, and every participant must submit a <code>commitment</code> and place it in the Merkle Tree, and after that to interact with the app every participant will create a zkProof's, that they are a <em>member of the tree</em> (we use an <em>Incremental Merkle Tree</em>, as it more <em>GAS efficient</em>).</p>
-<p>So, each member generates a secret key, denoted by <code>a_0</code>. Identity commitment <code>q</code> is the hash (Poseidon) of the secret key: <code>q = Poseidon(a_0)</code>.</p>
-<p><strong>RLN</strong> wouldn't work if there were no punishment for spam; that's why to become a member, a user has to register and provide something at stake. So, whoever has our <code>a_0</code> can &quot;slash&quot; us. </p>
-<p>The slight difference is that we must enable a <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). We need to come up with a polynomial. For simplicity we use linear polynomial (e.g. <code>f(x) = kx + b</code>). Therefore, with two points, we can reconstruct the polynomial and recover the secret. </p>
-<p>Our polynomial will be: <code>A(x) = (a_0, a_1)</code>, where <code>a_1 = Poseidon(a_0, epoch)</code>.</p>
-<p>Less strict: <code>A(x) = a_1 * x + a_0</code>.</p>
-<p><code>epoch</code> is a simple identifier (also called <em>external nullifier</em>). And each epoch, there is a polynomial with new <code>a_1</code> and the same <code>a_0</code>. </p>
+<p>So, each member generates a secret key, denoted by \(a_0\). Identity commitment \(q\) is the hash (Poseidon) of the secret key: \(q = Poseidon(a_0)\).</p>
+<p><strong>RLN</strong> wouldn't work if there were no punishment for spam; that's why to become a member, a user has to register and provide something at stake. So, whoever has our \(a_0\) can &quot;slash&quot; us. </p>
+<p>The slight difference is that we must enable a <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). We need to come up with a polynomial. For simplicity we use linear polynomial (e.g. \(f(x) = kx + b\). Therefore, with two points, we can reconstruct the polynomial and recover the secret. </p>
+<p>Our polynomial will be: \(A(x) = a_1 * x + a_0\), where \(a_1 = Poseidon(a_0, epoch)\).</p>
+<p><code>epoch</code> is a simple identifier (also called <em>external nullifier</em>). And each epoch, there is a polynomial with new \(a_1\) and the same \(a_0\). </p>
 <h2 id="signalling"><a class="header" href="#signalling">Signalling</a></h2>
 <p>Now that the user is registered, he wants to interact with the system. Imagine that the system is an <em>anonymous chat</em> and the interaction is the sending of messages. 
-So, to send a message user have to come up with <em>share</em> - the point <code>(x, y)</code> on her polynomial. 
-We denote: <code>x = Poseidon(message), and y = A(x)</code>. </p>
-<p>Thus, if the same epoch user sends more than one message, their polynomial and, therefore, their secret (<code>a_0</code>) can be recovered.</p>
-<p>Of course, we somehow must prove that our <code>share = (x, y)</code> is valid (that this is really a point on our <code>polynomial = A(x)</code>), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.</p>
+So, to send a message user have to come up with <em>share</em> - the point \((x, y)\) on her polynomial. 
+We denote: \(x = Poseidon(message), y = A(x)\). </p>
+<p>Thus, if the same epoch user sends more than one message, their polynomial and, therefore, their secret (\(a_0\)) can be recovered.</p>
+<p>Of course, we somehow must prove that our <em>share</em> = \((x, y)\) is valid (that this is really a point on our <code>polynomial = A(x)</code>), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.</p>
 <h2 id="slashing"><a class="header" href="#slashing">Slashing</a></h2>
 <p>As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake.</p>
 <h2 id="some-important-notes"><a class="header" href="#some-important-notes">Some important notes</a></h2>
-<p>There are also <code>nullifier</code> and <code>rln_identifier</code>, which can be found in the <strong>RLN</strong> protocol/circuits.</p>
-<p>So, <code>rln_identifier</code> is just a random value that's unique per <strong>RLN</strong> app. It's used for additional cross-application security - to protect the user secrets from being compromised if they use the same credentials across different <strong>RLN</strong> apps. If <code>rln_identifier</code> is not present, the user uses the same credentials and sends a message in two different <strong>RLN</strong> apps using the same epoch, then their secret key can be revealed. Adding the <code>rln_identifier</code> field, we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute-force different combinations of x and y shares for different nullifiers.</p>
-<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public <code>nullifier</code> (<code>nullifier = Poseidon(a_1, rln_identifier)</code>), so if a user sends more than one message, it will be immediately visible to everyone.</p>
+<p>There are also <code>nullifier</code> and <code>rln-identifier</code>, which can be found in the <strong>RLN</strong> protocol/circuits.</p>
+<p>So, <code>rln-identifier</code> is just a random value that's unique per <strong>RLN</strong> app. It's used for additional cross-application security - to protect the user secrets from being compromised if they use the same credentials across different <strong>RLN</strong> apps. If <code>rln-identifier</code> is not present, the user uses the same credentials and sends a message in two different <strong>RLN</strong> apps using the same epoch, then their secret key can be revealed. Adding the <code>rln-identifier</code> field, we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute-force different combinations of x and y shares for different nullifiers.</p>
+<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public <code>nullifier</code> (\(Poseidon(a_1, rln-identifier)\)), so if a user sends more than one message, it will be immediately visible to everyone.</p>
 <p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
 <p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
@@ -421,91 +422,35 @@ component main {public [x, epoch, rln_identifier ]} = RLN(15);
 <li>Shamir's Secret Sharing</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shamirs-secret-sharing-scheme"><a class="header" href="#shamirs-secret-sharing-scheme">Shamir's Secret Sharing Scheme</a></h1>
-<p><em>Shamirs Secret Sharing</em> allows to split the secret to <code>n</code> parts and restore it upon presentation any <code>m</code> parts (<code>m &lt;= n</code>)</p>
-<p><a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing">Sharmir's Secret Sharing wikipedia</a> is a good reference to understand the concept.</p>
-<p>Reconstruction 1: https://github.com/akinovak/semaphore-lib/blob/5b9bb3210192c8e508eced7ef6579fd56e635ed0/src/rln.ts#L31</p>
-<pre><code class="language-js">retrievePrivateKey(x1: bigint, x2:bigint, y1:bigint, y2:bigint): Buffer | ArrayBuffer {
-        const slope = Fq.div(Fq.sub(y2, y1), Fq.sub(x2, x1))
-        const privateKey = Fq.sub(y1, Fq.mul(slope, x1));
-        return bigintConversion.bigintToBuf(Fq.normalize(privateKey));
-    }
-</code></pre>
-<p>Reconstruction 2: https://github.com/akinovak/semaphore-lib/blob/rln_signature_changes/test/index.ts#L250</p>
-<pre><code class="language-js">async function testRlnSlashingSimulation() {
-    RLN.setHasher('poseidon');
-    const identity = RLN.genIdentity();
-    const privateKey = identity.keypair.privKey;
-
-    const leafIndex = 3;
-    const idCommitments: Array&lt;any&gt; = [];
-
-    for (let i=0; i&lt;leafIndex;i++) {
-      const tmpIdentity = OrdinarySemaphore.genIdentity();
-      const tmpCommitment: any = RLN.genIdentityCommitment(identity.keypair.privKey);
-      idCommitments.push(tmpCommitment);
-    }
-
-    idCommitments.push(RLN.genIdentityCommitment(privateKey))
-
-    const signal = 'hey hey';
-    const x1: bigint = OrdinarySemaphore.genSignalHash(signal);
-    const epoch: string = OrdinarySemaphore.genExternalNullifier('test-epoch');
-
-    const vkeyPath: string = path.join('./rln-zkeyFiles', 'verification_key.json');
-    const vKey = JSON.parse(fs.readFileSync(vkeyPath, 'utf-8'));
-
-    const wasmFilePath: string = path.join('./rln-zkeyFiles', 'rln.wasm');
-    const finalZkeyPath: string = path.join('./rln-zkeyFiles', 'rln_final.zkey');
-
-    const witnessData: IWitnessData = await RLN.genProofFromIdentityCommitments(privateKey, epoch, signal, wasmFilePath, finalZkeyPath, idCommitments, 15, BigInt(0), 2);
-
-    const a1 = RLN.calculateA1(privateKey, epoch);
-    const y1 = RLN.calculateY(a1, privateKey, x1);
-    const nullifier = RLN.genNullifier(a1);
-
-    const pubSignals = [y1, witnessData.root, nullifier, x1, epoch];
-
-    let res = await RLN.verifyProof(vKey, { proof: witnessData.fullProof.proof, publicSignals: pubSignals })
-    if (res === true) {
-        console.log(&quot;Verification OK&quot;);
-    } else {
-        console.log(&quot;Invalid proof&quot;);
-        return;
-    }
-
-    const signalSpam = &quot;let's try spamming&quot;;
-    const x2: bigint = OrdinarySemaphore.genSignalHash(signalSpam);
-
-    const witnessDataSpam: IWitnessData = await RLN.genProofFromIdentityCommitments(privateKey, epoch, signalSpam, wasmFilePath, finalZkeyPath, idCommitments, 15, BigInt(0), 2);
-
-    const a1Spam = RLN.calculateA1(privateKey, epoch);
-    const y2 = RLN.calculateY(a1Spam, privateKey, x2);
-    const nullifierSpam = RLN.genNullifier(a1Spam);
-
-    const pubSignalsSpam = [y2, witnessDataSpam.root, nullifierSpam, x2, epoch];
-
-    res = await RLN.verifyProof(vKey, { proof: witnessDataSpam.fullProof.proof, publicSignals: pubSignalsSpam })
-    if (res === true) {
-        console.log(&quot;Spam proof Verification OK&quot;);
-    } else {
-        console.log(&quot;Invalid proof&quot;);
-        return;
-    }
-
-    const identitySecret = RLN.calculateIdentitySecret(privateKey);
-
-    const retreivedPkey = bigintConversion.bufToBigint(RLN.retrievePrivateKey(x1, x2, y1, y2));
-
-
-    if(Fq.eq(identitySecret, retreivedPkey)) {
-        console.log(&quot;PK successfully reconstructed&quot;);
-    } else {
-        console.log(&quot;Error while reconstructing private key&quot;)
-    }
-
-    // TODO: Add removal from tree example
-}
-</code></pre>
+<p><em>This topic is an explanation of <strong>Shamir's Secret Sharing</strong> scheme (<strong>SSS</strong>) also known as \((k, n)\) threshold secret sharing scheme. <strong>SSS</strong> is one of the key parts of <strong>RLN</strong> due to which we can share and restore the secret.</em></p>
+<h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
+<p>Imagine, if you have some important secret (secret key) and you don't want to store it anywhere. For that you can use <em>SSS</em> scheme. It allows you to split this secret into \(n\) parts (each individual part doesn't give any information about the secret) and restore this secret upon presentation of \(k\) \((k &lt;= n)\) parts.</p>
+<p>For example, you have a secret and you want to split it into \(n\) parts/shares. You can divide these shares between your friends (1 share to 1 friend). Now when \(k\) of your friends reveal their share you can restore the secret.</p>
+<p>This scheme is also called \((k, n)\) <em>threshold secret sharing scheme</em>.</p>
+<p>This scheme is possible due to <em>polynomial interpolation</em> (especially Lagrange interpolation). Let's describe how <em>Lagrange interpolation</em> works and then how it's used in <em>SSS</em> scheme.</p>
+<h2 id="polynomial-lagrange-interpolation"><a class="header" href="#polynomial-lagrange-interpolation">Polynomial (Lagrange) interpolation</a></h2>
+<p><em>Interpolation</em> is a method of constructing (or restoring) new points/values (or function) based on the range of a set of known points/values (f.e. we can restore the line (linear function) from two points, that are from this line). Previous example actually describes how that works. </p>
+<p align="center">
+    <img src="./images/graph1.png" width="300">
+</p>
+<p align="center">
+    <i>An unlimited number of parabolas (second degree polynomials) can be drawn through two points. To choose the only one, you need a third point.</i>
+</p>
+<p>Thus, if we have a polynomial \(f(x) = 3x + 2\) we only need two points from this polynomial to restore it. Let's peek two random \(x\) values and calculate \(f(x)\):</p>
+<ul>
+<li>For \(x = 1\) we have \(f(1) = 3 * 1 + 2 = 5\)</li>
+<li>For \(x = 10\) we have \(f(10) = 32\)</li>
+</ul>
+<p>Now we have to shares: \((1, 5)\) and \((10, 32)\). If we draw a graph based on these two shares, we can easily see that this is the same line (function):</p>
+<p align="center">
+    <img src="./images/line.png" width="500" height="400">
+</p>
+<p>We also can &quot;restore&quot; the function analytically. For that let's denote: \[f(x) = y_1 * \frac{x - x_2}{x_1 - x_2} + y_2 * \frac{x - x_1}{x_2 - x_1}\]
+where \(x_1 = 5, x_2 = 10, y_1 = 5, y_2 = 32\). If we make substitution we got: \[f(x) = 3x + 2 \]
+which is the same polynomial.</p>
+<p>The same techique can be made with every polynomial. Main thing to remember is that we need \(n + 1\) points to interpolate \(n\)-degree polynomial.</p>
+<p>Now that we know how interpolation works, we can learn how it is used in SSS.</p>
+<h2 id="shamirs-secret-sharing"><a class="header" href="#shamirs-secret-sharing">Shamir's Secret Sharing</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
 <p>The following sections contain reference material you may find useful:</p>
 <ul>
@@ -588,7 +533,9 @@ component main {public [x, epoch, rln_identifier ]} = RLN(15);
         <script type="text/javascript" src="mermaid-init.js"></script>
         <script type="text/javascript">
         window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
         });
         </script>
     </body>

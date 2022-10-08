@@ -25,6 +25,8 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
         <!-- Provide site root to javascript -->
@@ -156,9 +158,9 @@
 <p>There are a number of use-cases for <strong>RLN</strong>, such as voting applications (1 vote per election), chat (one message per second), and rate-limiting cache access (CDN denial of service protection). The verifier can be a server for centralized applications or the other users for decentralized applications.</p>
 <p>The general anti-spam rule is usually in the form of: 
 <code>Users must not make more than X interactions per epoch.</code></p>
-<p>The epoch can be translated as a time interval of <code>Y</code> units of time unit <code>Z.</code> For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.</p>
-<p>We can implement this using <code>Shamir's Secret Sharing</code> scheme (<a href="./sss.html"><em>read more</em></a>), which allows you to split a secret (f.e. to <code>n</code> parts) and recover it when any <code>m' of </code>n<code> parts ('m &lt;= n</code>) are presented.</p>
-<p>Thus, users have to split their <code>secret_key</code> into <code>n</code> parts, and for every interaction, they have to reveal the new part of the <code>secret_key.</code> So, in addition to proving the membership in the <code>Merkle Tree,</code> users have to prove that the revealed part is truly the part of their <code>secret_key.</code></p>
+<p>The epoch can be translated as a time interval of <code>Y</code> units of time unit <code>Z</code>. For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.</p>
+<p>We can implement this using <em>Shamir's Secret Sharing</em> scheme (<a href="./sss.html"><em>read more</em></a>), which allows you to split a secret (f.e. to <code>n</code> parts) and recover it when any <code>m</code> of <code>n</code> parts <code>(m &lt;= n)</code> are presented.</p>
+<p>Thus, users have to split their <code>secret_key</code> into <code>n</code> parts, and for every interaction, they have to reveal the new part of the <code>secret_key.</code> So, in addition to proving the membership in the <em>Merkle Tree</em>, users have to prove that the revealed part is truly the part of their <code>secret_key.</code></p>
 <p>If they make more interactions than allowed per epoch, their secret key can be fully reconstructed.</p>
 <h3 id="user-removal-slashing"><a class="header" href="#user-removal-slashing">User removal (slashing)</a></h3>
 <p>The final property of the <strong>RLN</strong> mechanism is that it allows for the users to be removed from the membership tree by anyone that knows their secret key. The membership tree contains the identity commitments of all registered users. Users' identity commitment is derived from their secret key, and the secret key of the user is only revealed in a spam event (except for the scenarios where the original users want to remove themselves, which they can always do because they know their secret key). When an economic stake is present, the <strong>RLN</strong> mechanism can be implemented in a way that the spammer's stake is sent to the first user that correctly reports the spammer by providing the reconstructed secret key of the spammer as proof.</p>
