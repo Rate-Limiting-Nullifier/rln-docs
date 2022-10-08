@@ -1,93 +1,41 @@
 # Shamir's Secret Sharing Scheme
 
-*Shamirs Secret Sharing* allows to split the secret to `n` parts and restore it upon presentation any `m` parts (`m <= n`)
+*This topic is an explanation of **Shamir's Secret Sharing** scheme (**SSS**) also known as \\((k, n)\\) threshold secret sharing scheme. **SSS** is one of the key parts of **RLN** due to which we can share and restore the secret.*
 
-[Sharmir's Secret Sharing wikipedia](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) is a good reference to understand the concept.
+## Overview
+Imagine, if you have some important secret (secret key) and you don't want to store it anywhere. For that you can use *SSS* scheme. It allows you to split this secret into \\(n\\) parts (each individual part doesn't give any information about the secret) and restore this secret upon presentation of \\(k\\) \\((k <= n)\\) parts.
 
-Reconstruction 1: https://github.com/akinovak/semaphore-lib/blob/5b9bb3210192c8e508eced7ef6579fd56e635ed0/src/rln.ts#L31
-```js
-retrievePrivateKey(x1: bigint, x2:bigint, y1:bigint, y2:bigint): Buffer | ArrayBuffer {
-        const slope = Fq.div(Fq.sub(y2, y1), Fq.sub(x2, x1))
-        const privateKey = Fq.sub(y1, Fq.mul(slope, x1));
-        return bigintConversion.bigintToBuf(Fq.normalize(privateKey));
-    }
-```
+For example, you have a secret and you want to split it into \\(n\\) parts/shares. You can divide these shares between your friends (1 share to 1 friend). Now when \\(k\\) of your friends reveal their share you can restore the secret.
 
-Reconstruction 2: https://github.com/akinovak/semaphore-lib/blob/rln_signature_changes/test/index.ts#L250
+This scheme is also called \\((k, n)\\) *threshold secret sharing scheme*.
 
-```js
-async function testRlnSlashingSimulation() {
-    RLN.setHasher('poseidon');
-    const identity = RLN.genIdentity();
-    const privateKey = identity.keypair.privKey;
+This scheme is possible due to *polynomial interpolation* (especially Lagrange interpolation). Let's describe how *Lagrange interpolation* works and then how it's used in *SSS* scheme.
 
-    const leafIndex = 3;
-    const idCommitments: Array<any> = [];
+## Polynomial (Lagrange) interpolation
 
-    for (let i=0; i<leafIndex;i++) {
-      const tmpIdentity = OrdinarySemaphore.genIdentity();
-      const tmpCommitment: any = RLN.genIdentityCommitment(identity.keypair.privKey);
-      idCommitments.push(tmpCommitment);
-    }
+*Interpolation* is a method of constructing (or restoring) new points/values (or function) based on the range of a set of known points/values (f.e. we can restore the line (linear function) from two points, that are from this line). Previous example actually describes how that works. 
+<p align="center">
+    <img src="./images/graph1.png" width="300">
+</p>
+<p align="center">
+    <i>An unlimited number of parabolas (second degree polynomials) can be drawn through two points. To choose the only one, you need a third point.</i>
+</p>
 
-    idCommitments.push(RLN.genIdentityCommitment(privateKey))
+Thus, if we have a polynomial \\(f(x) = 3x + 2\\) we only need two points from this polynomial to restore it. Let's peek two random \\(x\\) values and calculate \\(f(x)\\):
+* For \\(x = 1\\) we have \\(f(1) = 3 * 1 + 2 = 5\\)
+* For \\(x = 10\\) we have \\(f(10) = 32\\)
 
-    const signal = 'hey hey';
-    const x1: bigint = OrdinarySemaphore.genSignalHash(signal);
-    const epoch: string = OrdinarySemaphore.genExternalNullifier('test-epoch');
+Now we have to shares: \\((1, 5)\\) and \\((10, 32)\\). If we draw a graph based on these two shares, we can easily see that this is the same line (function):
+<p align="center">
+    <img src="./images/line.png" width="500" height="400">
+</p>
 
-    const vkeyPath: string = path.join('./rln-zkeyFiles', 'verification_key.json');
-    const vKey = JSON.parse(fs.readFileSync(vkeyPath, 'utf-8'));
+We also can "restore" the function analytically. For that let's denote: \\[f(x) = y_1 * \frac{x - x_2}{x_1 - x_2} + y_2 * \frac{x - x_1}{x_2 - x_1}\\]
+where \\(x_1 = 5, x_2 = 10, y_1 = 5, y_2 = 32\\). If we make substitution we got: \\[f(x) = 3x + 2 \\]
+which is the same polynomial.
 
-    const wasmFilePath: string = path.join('./rln-zkeyFiles', 'rln.wasm');
-    const finalZkeyPath: string = path.join('./rln-zkeyFiles', 'rln_final.zkey');
+The same techique can be made with every polynomial. Main thing to remember is that we need \\(n + 1\\) points to interpolate \\(n\\)-degree polynomial.
 
-    const witnessData: IWitnessData = await RLN.genProofFromIdentityCommitments(privateKey, epoch, signal, wasmFilePath, finalZkeyPath, idCommitments, 15, BigInt(0), 2);
+Now that we know how interpolation works, we can learn how it is used in SSS.
 
-    const a1 = RLN.calculateA1(privateKey, epoch);
-    const y1 = RLN.calculateY(a1, privateKey, x1);
-    const nullifier = RLN.genNullifier(a1);
-
-    const pubSignals = [y1, witnessData.root, nullifier, x1, epoch];
-
-    let res = await RLN.verifyProof(vKey, { proof: witnessData.fullProof.proof, publicSignals: pubSignals })
-    if (res === true) {
-        console.log("Verification OK");
-    } else {
-        console.log("Invalid proof");
-        return;
-    }
-
-    const signalSpam = "let's try spamming";
-    const x2: bigint = OrdinarySemaphore.genSignalHash(signalSpam);
-
-    const witnessDataSpam: IWitnessData = await RLN.genProofFromIdentityCommitments(privateKey, epoch, signalSpam, wasmFilePath, finalZkeyPath, idCommitments, 15, BigInt(0), 2);
-
-    const a1Spam = RLN.calculateA1(privateKey, epoch);
-    const y2 = RLN.calculateY(a1Spam, privateKey, x2);
-    const nullifierSpam = RLN.genNullifier(a1Spam);
-
-    const pubSignalsSpam = [y2, witnessDataSpam.root, nullifierSpam, x2, epoch];
-
-    res = await RLN.verifyProof(vKey, { proof: witnessDataSpam.fullProof.proof, publicSignals: pubSignalsSpam })
-    if (res === true) {
-        console.log("Spam proof Verification OK");
-    } else {
-        console.log("Invalid proof");
-        return;
-    }
-
-    const identitySecret = RLN.calculateIdentitySecret(privateKey);
-
-    const retreivedPkey = bigintConversion.bufToBigint(RLN.retrievePrivateKey(x1, x2, y1, y2));
-
-
-    if(Fq.eq(identitySecret, retreivedPkey)) {
-        console.log("PK successfully reconstructed");
-    } else {
-        console.log("Error while reconstructing private key")
-    }
-
-    // TODO: Add removal from tree example
-}
-```
+## Shamir's Secret Sharing

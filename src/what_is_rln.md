@@ -33,11 +33,11 @@ There are a number of use-cases for **RLN**, such as voting applications (1 vote
 The general anti-spam rule is usually in the form of: 
 `Users must not make more than X interactions per epoch.`
 
-The epoch can be translated as a time interval of `Y` units of time unit `Z.` For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.
+The epoch can be translated as a time interval of `Y` units of time unit `Z`. For simplicity's sake, let's transform the rule into: `Users must not send more than one message per second.
 
-We can implement this using `Shamir's Secret Sharing` scheme ([*read more*](./sss.md)), which allows you to split a secret (f.e. to `n` parts) and recover it when any `m' of `n` parts ('m <= n`) are presented.
+We can implement this using *Shamir's Secret Sharing* scheme ([*read more*](./sss.md)), which allows you to split a secret (f.e. to `n` parts) and recover it when any `m` of `n` parts `(m <= n)` are presented.
 
-Thus, users have to split their `secret_key` into `n` parts, and for every interaction, they have to reveal the new part of the `secret_key.` So, in addition to proving the membership in the `Merkle Tree,` users have to prove that the revealed part is truly the part of their `secret_key.`
+Thus, users have to split their `secret_key` into `n` parts, and for every interaction, they have to reveal the new part of the `secret_key.` So, in addition to proving the membership in the *Merkle Tree*, users have to prove that the revealed part is truly the part of their `secret_key.`
 
 If they make more interactions than allowed per epoch, their secret key can be fully reconstructed.
 

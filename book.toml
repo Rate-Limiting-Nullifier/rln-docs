@@ -10,6 +10,7 @@ edition = "2021"
 
 [output.html]
 additional-js = ["mermaid.min.js", "mermaid-init.js"]
+mathjax-support = true
 
 [output.html.search]
 limit-results = 15
