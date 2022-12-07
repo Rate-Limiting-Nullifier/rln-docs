@@ -5,7 +5,6 @@
         <meta charset="UTF-8">
         <title>Circuits - Rate-Limiting Nullifier</title>
         <!-- Custom HTML head -->
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -26,17 +25,17 @@
 
         <!-- Custom theme stylesheets -->
         <!-- MathJax -->
-        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -52,7 +51,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -64,7 +63,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -95,7 +94,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -126,7 +125,7 @@
                     </div>
                 </div>
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -213,32 +212,43 @@ template HashLeftRight() {
     out &lt;== hasher.out;
 }
 
+template CalculateExternalNullifier() {
+    signal input epoch;
+    signal input rln_identifier;
+
+    signal output out;
+
+    component hasher = Poseidon(2);
+    hasher.inputs[0] &lt;== epoch;
+    hasher.inputs[1] &lt;== rln_identifier;
+
+    out &lt;== hasher.out;
+}
+
 template CalculateA1() {
     signal input a_0;
-    signal input epoch;
+    signal input external_nullifier;
 
     signal output out;
 
     component hasher = Poseidon(2);
     hasher.inputs[0] &lt;== a_0;
-    hasher.inputs[1] &lt;== epoch;
+    hasher.inputs[1] &lt;== external_nullifier;
 
     out &lt;== hasher.out;
 }
 
-template CalculateNullifier() {
+template CalculateInternalNullifier() {
     signal input a_1;
-    signal input rln_identifier;
     signal output out;
 
-    component hasher = Poseidon(2);
+    component hasher = Poseidon(1);
     hasher.inputs[0] &lt;== a_1;
-    hasher.inputs[1] &lt;== rln_identifier;
 
     out &lt;== hasher.out;
 }
 </code></pre>
-<p>It's easy to understand these samples: <code>CalculateIdentityCommitment()</code> is used to calculate the identity commitment. It takes secret and outputs the commitment. <code>CalculateA1()</code> and <code>CalculateNullifier()</code> are used to calculate <code>a_1</code> and <code>nullifier</code> (internal nullifier); they are implemented as it's described in <a href="./protocol_spec.html">previous topic</a>.</p>
+<p>It's easy to understand these samples: <code>CalculateIdentityCommitment()</code>, <code>CalculateA1()</code>, <code>CalculateInternalNullifier()</code>, <code>CalculateExternalNullifier()</code> - they do exactly what their name says; they are implemented as it's described in <a href="./protocol_spec.html">previous topic</a>.</p>
 <p>Now, let's look at the core logic of the <strong>RLN</strong> circuit. </p>
 <pre><code class="language-swift">...
 
@@ -256,7 +266,7 @@ template CalculateNullifier() {
 
 ...
 </code></pre>
-<p>So, here we have many inputs. Private inputs are: <code>identity_secret</code> (basically <code>a_0</code> from the polynomial), <code>path_elements[][]</code>, <code>identity_path_index[]</code>. Public inputs are: <code>x</code> (actually just the hash of a signal), <code>epoch,</code> <code>rln_identifier.</code> Outputs are: <code>y' (share of the secret), </code>root<code>of a Merkle Tree, and</code>nullifier.`</p>
+<p>So, here we have many inputs. Private inputs are: <code>identity_secret</code> (basically <code>a_0</code> from the polynomial), <code>path_elements[][]</code>, <code>identity_path_index[]</code>. Public inputs are: <code>x</code> (actually just the hash of a signal), <code>epoch,</code> <code>rln_identifier</code>. Outputs are: <code>y</code> (polynomial share/secret share), <code>root</code> of a Merkle Tree, and <code>nullifier</code> (which is basically <code>internal_nullifier</code>).</p>
 <p><strong>RLN</strong> circuit consists of two checks:</p>
 <ul>
 <li>Membership in Merkle Tree</li>
@@ -287,12 +297,16 @@ template CalculateNullifier() {
 <pre><code class="language-swift">root &lt;== inclusionProof.root;
 </code></pre>
 <h3 id="correctness-of-secret-share"><a class="header" href="#correctness-of-secret-share">Correctness of secret share</a></h3>
-<p>As we use linear polynomial we need to check that <code>y = a_1 * x + a_0</code> (<code>a_0</code> is identity secret). For that, we need these constraints:</p>
+<p>As we use linear polynomial we need to check that <code>y = a_1 * x + a_0</code> (<code>a_0</code> is identity secret). For that, we need to calculate <code>external_nullifier</code> and constraints on <code>a_1</code> and secret share:</p>
 <pre><code class="language-swift">...
+
+    component external_nullifier = CalculateExternalNullifier();
+    external_nullifier.epoch &lt;== epoch;
+    external_nullifier.rln_identifier &lt;== rln_identifier;
 
     component a_1 = CalculateA1();
     a_1.a_0 &lt;== identity_secret;
-    a_1.epoch &lt;== epoch;
+    a_1.external_nullifier &lt;== external_nullifier.out;
 
     y &lt;== identity_secret + a_1.out * x;
 
@@ -301,9 +315,8 @@ template CalculateNullifier() {
 <p>To calculate and reveal the <code>nullifier</code>:</p>
 <pre><code class="language-swift">...
 
-    component calculateNullifier = CalculateNullifier();
+    component calculateNullifier = CalculateInternalNullifier();
     calculateNullifier.a_1 &lt;== a_1.out;
-    calculateNullifier.rln_identifier &lt;== rln_identifier;
 
     nullifier &lt;== calculateNullifier.out;
 
@@ -316,7 +329,7 @@ template CalculateNullifier() {
 
 include &quot;./rln-base.circom&quot;;
 
-component main {public [x, epoch, rln_identifier ]} = RLN(15);
+component main { public [x, epoch, rln_identifier] } = RLN(15);
 </code></pre>
 <p>That's the whole <strong>RLN</strong> Circom Circuit :) Here we just need to list all public inputs (<code>x,</code> <code>epoch,</code> <code>rln_identifier</code>; the rest of the inputs are private). Also, we set the depth of the Merkle Tree = 15 (max of 32768 members).</p>
 
@@ -346,18 +359,18 @@ component main {public [x, epoch, rln_identifier ]} = RLN(15);
 
         </div>
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script type="text/javascript" src="mermaid.min.js"></script>
-        <script type="text/javascript" src="mermaid-init.js"></script>
+        <script src="mermaid.min.js"></script>
+        <script src="mermaid-init.js"></script>
     </body>
 </html>

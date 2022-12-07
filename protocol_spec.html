@@ -5,7 +5,6 @@
         <meta charset="UTF-8">
         <title>Protocol spec - Rate-Limiting Nullifier</title>
         <!-- Custom HTML head -->
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -26,17 +25,17 @@
 
         <!-- Custom theme stylesheets -->
         <!-- MathJax -->
-        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -52,7 +51,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -64,7 +63,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -95,7 +94,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -126,7 +125,7 @@
                     </div>
                 </div>
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -155,8 +154,8 @@
 <p>So, each member generates a secret key, denoted by \(a_0\). Identity commitment \(q\) is the hash (Poseidon) of the secret key: \(q = Poseidon(a_0)\).</p>
 <p><strong>RLN</strong> wouldn't work if there were no punishment for spam; that's why to become a member, a user has to register and provide something at stake. So, whoever has our \(a_0\) can &quot;slash&quot; us. </p>
 <p>The slight difference is that we must enable a <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). We need to come up with a polynomial. For simplicity we use linear polynomial (e.g. \(f(x) = kx + b\). Therefore, with two points, we can reconstruct the polynomial and recover the secret. </p>
-<p>Our polynomial will be: \(A(x) = a_1 * x + a_0\), where \(a_1 = Poseidon(a_0, epoch)\).</p>
-<p><code>epoch</code> is a simple identifier (also called <em>external nullifier</em>). And each epoch, there is a polynomial with new \(a_1\) and the same \(a_0\). </p>
+<p>Our polynomial will be: \(A(x) = a_1 * x + a_0\), where \(a_1 = Poseidon(a_0, external\_nullifier)\).
+The meaning of \(external\_nullifier\) is described below.</p>
 <h2 id="signalling"><a class="header" href="#signalling">Signalling</a></h2>
 <p>Now that the user is registered, he wants to interact with the system. Imagine that the system is an <em>anonymous chat</em> and the interaction is the sending of messages. 
 So, to send a message user have to come up with <em>share</em> - the point \((x, y)\) on her polynomial. 
@@ -165,10 +164,12 @@ We denote: \(x = Poseidon(message), y = A(x)\). </p>
 <p>Of course, we somehow must prove that our <em>share</em> = \((x, y)\) is valid (that this is really a point on our <code>polynomial = A(x)</code>), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.</p>
 <h2 id="slashing"><a class="header" href="#slashing">Slashing</a></h2>
 <p>As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake.</p>
+<h2 id="nullifiers"><a class="header" href="#nullifiers">Nullifiers</a></h2>
+<p>There are also \(internal\_nullifier\) and \(external\_nullifier\), which can be found in the <strong>RLN</strong> protocol/circuits.</p>
+<p>\(external\_nullifier = Poseidon(epoch, rln\_identifier)\), where \(rln\_identifier\) is a random finite field value, unique per RLN app.</p>
+<p>The \(external\_nullifier\) is required so that the user can securely use the same private key \(a_0\) across different <strong>RLN</strong> apps - in different applications (and in different eras) with the same secret key, the user will have different values ​​of the coefficient \(a_1\).</p>
+<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public \(internal\_nullifier = Poseidon(a_1)\), so if a user sends more than one message, it will be immediately visible to everyone.</p>
 <h2 id="some-important-notes"><a class="header" href="#some-important-notes">Some important notes</a></h2>
-<p>There are also <code>nullifier</code> and <code>rln-identifier</code>, which can be found in the <strong>RLN</strong> protocol/circuits.</p>
-<p>So, <code>rln-identifier</code> is just a random value that's unique per <strong>RLN</strong> app. It's used for additional cross-application security - to protect the user secrets from being compromised if they use the same credentials across different <strong>RLN</strong> apps. If <code>rln-identifier</code> is not present, the user uses the same credentials and sends a message in two different <strong>RLN</strong> apps using the same epoch, then their secret key can be revealed. Adding the <code>rln-identifier</code> field, we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute-force different combinations of x and y shares for different nullifiers.</p>
-<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public <code>nullifier</code> (\(Poseidon(a_1, rln-identifier)\)), so if a user sends more than one message, it will be immediately visible to everyone.</p>
 <p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
 <p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
 
@@ -198,18 +199,18 @@ We denote: \(x = Poseidon(message), y = A(x)\). </p>
 
         </div>
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script type="text/javascript" src="mermaid.min.js"></script>
-        <script type="text/javascript" src="mermaid-init.js"></script>
+        <script src="mermaid.min.js"></script>
+        <script src="mermaid-init.js"></script>
     </body>
 </html>
