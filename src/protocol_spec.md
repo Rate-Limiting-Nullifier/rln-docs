@@ -26,9 +26,8 @@ So, each member generates a secret key, denoted by \\(a_0\\). Identity commitmen
 
 The slight difference is that we must enable a *secret sharing* scheme (to split the `commitment` into parts). We need to come up with a polynomial. For simplicity we use linear polynomial (e.g. \\(f(x) = kx + b\\). Therefore, with two points, we can reconstruct the polynomial and recover the secret. 
 
-Our polynomial will be: \\(A(x) = a_1 * x + a_0\\), where \\(a_1 = Poseidon(a_0, epoch)\\).
-
-`epoch` is a simple identifier (also called *external nullifier*). And each epoch, there is a polynomial with new \\(a_1\\) and the same \\(a_0\\). 
+Our polynomial will be: \\(A(x) = a_1 * x + a_0\\), where \\(a_1 = Poseidon(a_0, external\\_nullifier)\\).
+The meaning of \\(external\\_nullifier\\) is described below.
 
 ## Signalling
 Now that the user is registered, he wants to interact with the system. Imagine that the system is an *anonymous chat* and the interaction is the sending of messages. 
@@ -42,12 +41,16 @@ Of course, we somehow must prove that our *share* = \\((x, y)\\) is valid (that 
 ## Slashing
 As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake.
 
+## Nullifiers
+There are also \\(internal\\_nullifier\\) and \\(external\\_nullifier\\), which can be found in the **RLN** protocol/circuits.
+
+\\(external\\_nullifier = Poseidon(epoch, rln\\_identifier)\\), where \\(rln\\_identifier\\) is a random finite field value, unique per RLN app.
+
+The \\(external\\_nullifier\\) is required so that the user can securely use the same private key \\(a_0\\) across different **RLN** apps - in different applications (and in different eras) with the same secret key, the user will have different values ​​of the coefficient \\(a_1\\).
+
+Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received *shares* and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public \\(internal\\_nullifier = Poseidon(a_1)\\), so if a user sends more than one message, it will be immediately visible to everyone.
+
 ## Some important notes
-There are also `nullifier` and `rln-identifier`, which can be found in the **RLN** protocol/circuits.
-
-So, `rln-identifier` is just a random value that's unique per **RLN** app. It's used for additional cross-application security - to protect the user secrets from being compromised if they use the same credentials across different **RLN** apps. If `rln-identifier` is not present, the user uses the same credentials and sends a message in two different **RLN** apps using the same epoch, then their secret key can be revealed. Adding the `rln-identifier` field, we obscure the nullifier, so this kind of attack cannot happen. The only kind of attack that is possible is if we have an entity with a global view of all messages, and they try to brute-force different combinations of x and y shares for different nullifiers.
-
-Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received *shares* and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public `nullifier` (\\(Poseidon(a_1, rln-identifier)\\)), so if a user sends more than one message, it will be immediately visible to everyone.
 
 Also, in our example (and [zk-chat](https://github.com/njofce/zk-chat) implementation), we use linear polynomial, but [SSS](sss.md) allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. 
 

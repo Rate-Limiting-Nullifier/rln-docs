@@ -1,8 +1,5 @@
 # What is Rate-Limiting Nullifier?
 
-*This topic is a part of [complete overview](https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d) by Blagoj*.
-
-___
 
 **RLN** is a zero-knowledge gadget that enables spam prevention for decentralized, anonymous environments.
 

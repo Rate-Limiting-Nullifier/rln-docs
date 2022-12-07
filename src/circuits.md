@@ -97,33 +97,44 @@ template CalculateIdentityCommitment() {
     out <== hasher.out;
 }
 
+template CalculateExternalNullifier() {
+    signal input epoch;
+    signal input rln_identifier;
+
+    signal output out;
+
+    component hasher = Poseidon(2);
+    hasher.inputs[0] <== epoch;
+    hasher.inputs[1] <== rln_identifier;
+
+    out <== hasher.out;
+}
+
 template CalculateA1() {
     signal input a_0;
-    signal input epoch;
+    signal input external_nullifier;
 
     signal output out;
 
     component hasher = Poseidon(2);
     hasher.inputs[0] <== a_0;
-    hasher.inputs[1] <== epoch;
+    hasher.inputs[1] <== external_nullifier;
 
     out <== hasher.out;
 }
 
-template CalculateNullifier() {
+template CalculateInternalNullifier() {
     signal input a_1;
-    signal input rln_identifier;
     signal output out;
 
-    component hasher = Poseidon(2);
+    component hasher = Poseidon(1);
     hasher.inputs[0] <== a_1;
-    hasher.inputs[1] <== rln_identifier;
 
     out <== hasher.out;
 }
 ```
 
-It's easy to understand these samples: `CalculateIdentityCommitment()` is used to calculate the identity commitment. It takes secret and outputs the commitment. `CalculateA1()` and `CalculateNullifier()` are used to calculate `a_1` and `nullifier` (internal nullifier); they are implemented as it's described in [previous topic](./protocol_spec.md).
+It's easy to understand these samples: `CalculateIdentityCommitment()`, `CalculateA1()`, `CalculateInternalNullifier()`, `CalculateExternalNullifier()` - they do exactly what their name says; they are implemented as it's described in [previous topic](./protocol_spec.md).
 
 Now, let's look at the core logic of the **RLN** circuit. 
 ```swift
@@ -144,7 +155,7 @@ Now, let's look at the core logic of the **RLN** circuit.
 ...
 ```
 
-So, here we have many inputs. Private inputs are: `identity_secret` (basically `a_0` from the polynomial), `path_elements[][]`, `identity_path_index[]`. Public inputs are: `x` (actually just the hash of a signal), `epoch,` `rln_identifier.` Outputs are: `y' (share of the secret), `root` of a Merkle Tree, and `nullifier.`
+So, here we have many inputs. Private inputs are: `identity_secret` (basically `a_0` from the polynomial), `path_elements[][]`, `identity_path_index[]`. Public inputs are: `x` (actually just the hash of a signal), `epoch,` `rln_identifier`. Outputs are: `y` (polynomial share/secret share), `root` of a Merkle Tree, and `nullifier` (which is basically `internal_nullifier`).
 
 **RLN** circuit consists of two checks:
 * Membership in Merkle Tree
@@ -179,13 +190,17 @@ root <== inclusionProof.root;
 ```
 
 ### Correctness of secret share
-As we use linear polynomial we need to check that `y = a_1 * x + a_0` (`a_0` is identity secret). For that, we need these constraints:
+As we use linear polynomial we need to check that `y = a_1 * x + a_0` (`a_0` is identity secret). For that, we need to calculate `external_nullifier` and constraints on `a_1` and secret share:
 ```swift
 ...
 
+    component external_nullifier = CalculateExternalNullifier();
+    external_nullifier.epoch <== epoch;
+    external_nullifier.rln_identifier <== rln_identifier;
+
     component a_1 = CalculateA1();
     a_1.a_0 <== identity_secret;
-    a_1.epoch <== epoch;
+    a_1.external_nullifier <== external_nullifier.out;
 
     y <== identity_secret + a_1.out * x;
 
@@ -196,9 +211,8 @@ To calculate and reveal the `nullifier`:
 ```swift
 ...
 
-    component calculateNullifier = CalculateNullifier();
+    component calculateNullifier = CalculateInternalNullifier();
     calculateNullifier.a_1 <== a_1.out;
-    calculateNullifier.rln_identifier <== rln_identifier;
 
     nullifier <== calculateNullifier.out;
 
@@ -214,6 +228,6 @@ pragma circom 2.0.0;
 
 include "./rln-base.circom";
 
-component main {public [x, epoch, rln_identifier ]} = RLN(15);
+component main { public [x, epoch, rln_identifier] } = RLN(15);
 ```
 That's the whole **RLN** Circom Circuit :) Here we just need to list all public inputs (`x,` `epoch,` `rln_identifier`; the rest of the inputs are private). Also, we set the depth of the Merkle Tree = 15 (max of 32768 members).
