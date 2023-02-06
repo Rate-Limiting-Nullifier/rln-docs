@@ -5,7 +5,10 @@
         <meta charset="UTF-8">
         <title>Rate-Limiting Nullifier</title>
         <meta name="robots" content="noindex" />
+
+
         <!-- Custom HTML head -->
+        
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -16,15 +19,18 @@
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
         <link rel="stylesheet" href="css/print.css" media="print">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link rel="stylesheet" href="fonts/fonts.css">
+
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
@@ -85,7 +91,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                <div id="menu-bar-hover-placeholder"></div>
+                                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -112,6 +118,7 @@
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
+
                     </div>
                 </div>
 
@@ -125,6 +132,7 @@
                         </ul>
                     </div>
                 </div>
+
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
@@ -459,7 +467,7 @@ component main { public [x, epoch, rln_identifier] } = RLN(15);
     <img src="./images/line.png" width="500" height="400">
 </p>
 <p>We also can &quot;restore&quot; the function analytically. For that let's denote: \[f(x) = y_1 * \frac{x - x_2}{x_1 - x_2} + y_2 * \frac{x - x_1}{x_2 - x_1}\]
-where \(x_1 = 5, x_2 = 10, y_1 = 5, y_2 = 32\). If we make substitution we got: \[f(x) = 3x + 2 \]
+where \(x_1 = 1, x_2 = 10, y_1 = 5, y_2 = 32\). If we make substitution we got: \[f(x) = 3x + 2 \]
 which is the same polynomial.</p>
 <p>The same technique can be made with every polynomial. Main thing to remember is that we need \(n + 1\) points to interpolate \(n\)-degree polynomial.</p>
 <p>Now that we know how interpolation works, we can learn how it is used in SSS.</p>
@@ -537,22 +545,31 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+
+
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
             </nav>
 
         </div>
 
+
+
+
         <script>
             window.playground_copyable = true;
         </script>
+
+
         <script src="elasticlunr.min.js"></script>
         <script src="mark.min.js"></script>
         <script src="searcher.js"></script>
+
         <script src="clipboard.min.js"></script>
         <script src="highlight.js"></script>
         <script src="book.js"></script>
@@ -560,6 +577,7 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
         <!-- Custom JS scripts -->
         <script src="mermaid.min.js"></script>
         <script src="mermaid-init.js"></script>
+
         <script>
         window.addEventListener('load', function() {
             MathJax.Hub.Register.StartupHook('End', function() {
@@ -567,5 +585,6 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
             });
         });
         </script>
+
     </body>
 </html>
