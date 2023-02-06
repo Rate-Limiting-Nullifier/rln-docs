@@ -31,7 +31,7 @@ Now we have to shares: \\((1, 5)\\) and \\((10, 32)\\). If we draw a graph based
 </p>
 
 We also can "restore" the function analytically. For that let's denote: \\[f(x) = y_1 * \frac{x - x_2}{x_1 - x_2} + y_2 * \frac{x - x_1}{x_2 - x_1}\\]
-where \\(x_1 = 5, x_2 = 10, y_1 = 5, y_2 = 32\\). If we make substitution we got: \\[f(x) = 3x + 2 \\]
+where \\(x_1 = 1, x_2 = 10, y_1 = 5, y_2 = 32\\). If we make substitution we got: \\[f(x) = 3x + 2 \\]
 which is the same polynomial.
 
 The same technique can be made with every polynomial. Main thing to remember is that we need \\(n + 1\\) points to interpolate \\(n\\)-degree polynomial.
