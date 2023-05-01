@@ -1,5 +1,11 @@
 # References
 
+* [RFC V1](https://rfc.vac.dev/spec/32/)
+
+* [RFC V2](https://rfc.vac.dev/spec/58/)
+
+* [zkResearch post](https://zkresear.ch/t/rate-limit-nullifier-v2-circuits/102)
+
 * [First Proposal/Idea of RLN by Barry WhiteHat](https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009)
 
 * [RLN Overview by Blagoj](https://medium.com/privacy-scaling-explorations/rate-limiting-nullifier-a-spam-protection-mechanism-for-anonymous-environments-bbe4006a57d)

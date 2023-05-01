@@ -3,8 +3,10 @@
 - [Overview](./overview.md)
   - [What is RLN](./what_is_rln.md)
   - [Under the hood](./under_the_hood.md)
-    - [Protocol spec](./protocol_spec.md)
-    - [Circuits](./circuits.md)
+    - [Protocol spec V1](./protocol_spec.md)
+    - [Protocol spec V2](./protocol_spec_v2.md)
+    - [Formal spec](./formal_spec.md)
+    <!-- - [Circuits](./circuits.md) -->
   - [Uses](./uses.md)
 - [How to use](./how_to_use.md)
   - [JavaScript RLN]()
