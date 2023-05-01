@@ -35,6 +35,7 @@
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -72,10 +73,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -83,7 +86,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="under_the_hood.html"><strong aria-hidden="true">2.2.</strong> Under the hood</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="protocol_spec.html"><strong aria-hidden="true">2.2.1.</strong> Protocol spec</a></li><li class="chapter-item expanded "><a href="circuits.html"><strong aria-hidden="true">2.2.2.</strong> Circuits</a></li></ol></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.3.</strong> Uses</a></li></ol></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to use</a></li><li><ol class="section"><li class="chapter-item expanded "><div><strong aria-hidden="true">3.1.</strong> JavaScript RLN</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.2.</strong> Rust RLN</div></li></ol></li><li class="chapter-item expanded "><a href="theory.html"><strong aria-hidden="true">4.</strong> Theory</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">4.1.</strong> Shamir's Secret Sharing</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="terminology.html"><strong aria-hidden="true">5.1.</strong> A - Terminology</a></li><li class="chapter-item expanded "><a href="references.html"><strong aria-hidden="true">5.2.</strong> B - References</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="under_the_hood.html"><strong aria-hidden="true">2.2.</strong> Under the hood</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="protocol_spec.html"><strong aria-hidden="true">2.2.1.</strong> Protocol spec V1</a></li><li class="chapter-item expanded "><a href="protocol_spec_v2.html"><strong aria-hidden="true">2.2.2.</strong> Protocol spec V2</a></li><li class="chapter-item expanded "><a href="formal_spec.html"><strong aria-hidden="true">2.2.3.</strong> Formal spec</a></li></ol></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.3.</strong> Uses</a></li></ol></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to use</a></li><li><ol class="section"><li class="chapter-item expanded "><div><strong aria-hidden="true">3.1.</strong> JavaScript RLN</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.2.</strong> Rust RLN</div></li></ol></li><li class="chapter-item expanded "><a href="theory.html"><strong aria-hidden="true">4.</strong> Theory</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">4.1.</strong> Shamir's Secret Sharing</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="terminology.html"><strong aria-hidden="true">5.1.</strong> A - Terminology</a></li><li class="chapter-item expanded "><a href="references.html"><strong aria-hidden="true">5.2.</strong> B - References</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -238,203 +241,249 @@ We denote: \(x = Poseidon(message), y = A(x)\). </p>
 <h2 id="some-important-notes"><a class="header" href="#some-important-notes">Some important notes</a></h2>
 <p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
 <p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="circuits"><a class="header" href="#circuits">Circuits</a></h1>
-<p><em><a href="https://vitalik.ca/general/2022/06/15/using_snarks.html">zkSNARK</a> is used in the <strong>RLN</strong> core. Therefore, we must represent the protocol in <a href="https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs">R1CS</a> (as we use <a href="https://www.zeroknowledgeblog.com/index.php/groth16">Groth16</a>). <a href="https://docs.circom.io/">Circom</a> was chosen for this. This section explains <strong>RLN</strong> circuits for the linear polynomial case (one message per epoch). You can find implementation for the general case <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/nrln-base.circom">here</a></em></p>
-<hr />
-<p><strong>RLN</strong> circuits implement the logic described in <a href="./protocol_spec.html">previous topic</a>.</p>
-<h2 id="merkle-tree-circuit"><a class="header" href="#merkle-tree-circuit">Merkle Tree circuit</a></h2>
-<p>One of the critical components of <strong>RLN</strong> is the <em>Incremental Merkle Tree</em> for the membership tree. Any Merkle tree can be used, but we have chosen the Incremental Merkle Tree for gas efficiency.
-Let's look at the <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/incrementalMerkleTree.circom">implementation</a>.</p>
-<p>At the beginning of the file, we denote that we use Circom 2.0 and include two helper <em>zk-gadgets</em>:</p>
-<pre><code class="language-swift">pragma circom 2.0.0;
-
-include &quot;../node_modules/circomlib/circuits/poseidon.circom&quot;;
-include &quot;../node_modules/circomlib/circuits/mux1.circom&quot;;
-</code></pre>
-<p><em>Poseidon</em> gadget is just the implementation of the <em>Poseidon</em> hash function; the <em>mux1</em> gadget will be described later.</p>
-<p>Next, we can see two implemented gadgets:</p>
-<pre><code class="language-swift">template PoseidonHashT3() {
-    var nInputs = 2;
-    signal input inputs[nInputs];
-    signal output out;
-
-    component hasher = Poseidon(nInputs);
-    for (var i = 0; i &lt; nInputs; i ++) {
-        hasher.inputs[i] &lt;== inputs[i];
-    }
-    out &lt;== hasher.out;
-}
-
-template HashLeftRight() {
-    signal input left;
-    signal input right;
-
-    signal output hash;
-
-    component hasher = PoseidonHashT3();
-    left ==&gt; hasher.inputs[0];
-    right ==&gt; hasher.inputs[1];
-
-    hash &lt;== hasher.out;
-}
-</code></pre>
-<p>These are helper gadgets to make the code more clean. <em>Poseidon</em> gadget is implemented with the ability to take a different number of arguments. We use <code>PoseidonHashT3()</code> to initialize it like a function with two arguments. And <code>HashLeftRight</code> use <code>PoseidonHashT3</code> in a more &quot;readable&quot; way: it takes two inputs, <code>left</code> and <code>right,</code> and outputs the result of the calculation.</p>
-<p>Next comes the core of the Merkle Tree gadget:</p>
-<pre><code class="language-swift">template MerkleTreeInclusionProof(n_levels) {
-    signal input leaf;
-    signal input path_index[n_levels];
-    signal input path_elements[n_levels][1];
-    signal output root;
-
-    component hashers[n_levels];
-    component mux[n_levels];
-
-    signal levelHashes[n_levels + 1];
-    levelHashes[0] &lt;== leaf;
-
-    ...
-
-    root &lt;== levelHashes[n_levels];
-}
-</code></pre>
-<p>Here we have three inputs: <code>leaf,</code> <code>path_index,</code> and <code>path_elements.</code> </p>
-<p><code>path_index</code> is the position of the leaf represented in binary. We need the binary representation of the position in the Merkle tree to understand the hashing path from the leaf to the root (more on that <em><a href="">&quot;3. Recursive Incremental Merkle Tree Algorithm, page 4&quot;</a></em>). </p>
-<p><code>path_elements</code> are sibling leaves that are part of Merkle Proof.</p>
-<p><code>leaf = Poseidon(identity_secret)</code>, so it's just <em>identity commitment</em>.</p>
-<p>There is a Merkle Tree hashing algorithm in the omitted part, no more than that.</p>
-<h2 id="rln-core"><a class="header" href="#rln-core">RLN core</a></h2>
-<p>RLN circuit is the implementation of <strong>RLN</strong> logic itself (which in turn uses the <em>Merkle Tree</em> gadget). You can find the implementation <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln-base.circom">here</a>.</p>
-<p>So, let's start with helper gadgets:</p>
-<pre><code class="language-swift">template CalculateIdentityCommitment() {
-    signal input identity_secret;
-    signal output out;
-
-    component hasher = Poseidon(1);
-    hasher.inputs[0] &lt;== identity_secret;
-
-    out &lt;== hasher.out;
-}
-
-template CalculateExternalNullifier() {
-    signal input epoch;
-    signal input rln_identifier;
-
-    signal output out;
-
-    component hasher = Poseidon(2);
-    hasher.inputs[0] &lt;== epoch;
-    hasher.inputs[1] &lt;== rln_identifier;
-
-    out &lt;== hasher.out;
-}
-
-template CalculateA1() {
-    signal input a_0;
-    signal input external_nullifier;
-
-    signal output out;
-
-    component hasher = Poseidon(2);
-    hasher.inputs[0] &lt;== a_0;
-    hasher.inputs[1] &lt;== external_nullifier;
-
-    out &lt;== hasher.out;
-}
-
-template CalculateInternalNullifier() {
-    signal input a_1;
-    signal output out;
-
-    component hasher = Poseidon(1);
-    hasher.inputs[0] &lt;== a_1;
-
-    out &lt;== hasher.out;
-}
-</code></pre>
-<p>It's easy to understand these samples: <code>CalculateIdentityCommitment()</code>, <code>CalculateA1()</code>, <code>CalculateInternalNullifier()</code>, <code>CalculateExternalNullifier()</code> - they do exactly what their name says; they are implemented as it's described in <a href="./protocol_spec.html">previous topic</a>.</p>
-<p>Now, let's look at the core logic of the <strong>RLN</strong> circuit. </p>
-<pre><code class="language-swift">...
-
-    signal input identity_secret;
-    signal input path_elements[n_levels][LEAVES_PER_PATH_LEVEL];
-    signal input identity_path_index[n_levels];
-
-    signal input x;
-    signal input epoch;
-    signal input rln_identifier;
-
-    signal output y;
-    signal output root;
-    signal output nullifier;
-
-...
-</code></pre>
-<p>So, here we have many inputs. Private inputs are: <code>identity_secret</code> (basically <code>a_0</code> from the polynomial), <code>path_elements[][]</code>, <code>identity_path_index[]</code>. Public inputs are: <code>x</code> (actually just the hash of a signal), <code>epoch,</code> <code>rln_identifier</code>. Outputs are: <code>y</code> (polynomial share/secret share), <code>root</code> of a Merkle Tree, and <code>nullifier</code> (which is basically <code>internal_nullifier</code>).</p>
-<p><strong>RLN</strong> circuit consists of two checks:</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="protocol-spec-v2"><a class="header" href="#protocol-spec-v2">Protocol spec V2</a></h1>
+<h2 id="tldr"><a class="header" href="#tldr">TL;DR</a></h2>
+<p>The main goal of RLN v2 circuits is to make it possible to have a custom amount of messages (signals) per epoch without using a separate circuit or high-degree polynomials for <a href="https://rate-limiting-nullifier.github.io/rln-docs/sss.html">Shamir's Secret Sharing</a>.</p>
+<h2 id="rln-v1"><a class="header" href="#rln-v1">RLN V1</a></h2>
+<p>The <a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/blob/master/circuits/rln.circom">Current RLN circuit</a> uses a first-degree polynomial for shares generation (and slashing). Therefore, there is a limit - one message per epoch. </p>
+<p>There have been attempts to make schemes in which the message limit per epoch is greater than one. For example, <a href="https://hackmd.io/zOk-bQ2GSgaJ1t1bI7zrWQ?view">N-RLN scheme</a> &amp; <a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/blob/master/circuits/nrln-base.circom">N-RLN Circuits</a>. But this approach is very problematic; the bigger the epoch limit, the higher the polynomial for Shamir's Secret Sharing, and the more complicated the circuit is(more R1CS, etc.).</p>
+<p>We have generally advised using 1 message/signal per epoch and adjusting the epoch length to match the rate limit desired for your use case. However, this isn’t very flexible and constrains the epoch length for all users to be the same per semaphore group (merkle tree).</p>
+<h3 id="overview-of-rln-v1-circuits"><a class="header" href="#overview-of-rln-v1-circuits">Overview of RLN v1 circuits</a></h3>
+<p>Before we move on, this is a quick refresher on the inputs/outputs of the RLN v1 circuits and their general purpose. If you want more detail on how RLN circuits work, please <a href="https://rate-limiting-nullifier.github.io/rln-docs/protocol_spec.html">read this</a>, which goes into more detail.</p>
+<p><strong>Inputs</strong>:</p>
+<p>Public: </p>
 <ul>
-<li>Membership in Merkle Tree</li>
-<li>Correctness of secret share</li>
+<li><code>external_nullifier</code> = <code>h(rln_identifier, epoch)</code> - <em>This identifies a unique epoch per app</em>, where <code>rln_identifier</code> is some unique identifier for an app and <code>epoch</code> is some unique identifier for an event or time;</li>
+<li><code>x</code> = <code>h(message)</code>.</li>
 </ul>
-<h3 id="membership-in-merkle-tree"><a class="header" href="#membership-in-merkle-tree">Membership in Merkle Tree</a></h3>
-<p>To check membership in a Merkle Tree, we can simply use the previously described Merkle Tree gadget:</p>
-<pre><code class="language-swift">...
-
-    component identity_commitment = CalculateIdentityCommitment();
-    identity_commitment.identity_secret &lt;== identity_secret;
-
-    var i;
-    var j;
-    component inclusionProof = MerkleTreeInclusionProof(n_levels);
-    inclusionProof.leaf &lt;== identity_commitment.out;
-
-    for (i = 0; i &lt; n_levels; i++) {
-      for (j = 0; j &lt; LEAVES_PER_PATH_LEVEL; j++) {
-        inclusionProof.path_elements[i][j] &lt;== path_elements[i][j];
-      }
-      inclusionProof.path_index[i] &lt;== identity_path_index[i];
-    }
-
-...
-</code></pre>
-<p>Here we are calculating the <code>identity_commitment</code> and passing it along with sibling leaves and binary representation of the position to a Merkle Tree gadget. It gives us the calculated root as an output, and we can put the constraint on that:</p>
-<pre><code class="language-swift">root &lt;== inclusionProof.root;
-</code></pre>
-<h3 id="correctness-of-secret-share"><a class="header" href="#correctness-of-secret-share">Correctness of secret share</a></h3>
-<p>As we use linear polynomial we need to check that <code>y = a_1 * x + a_0</code> (<code>a_0</code> is identity secret). For that, we need to calculate <code>external_nullifier</code> and constraints on <code>a_1</code> and secret share:</p>
-<pre><code class="language-swift">...
-
-    component external_nullifier = CalculateExternalNullifier();
-    external_nullifier.epoch &lt;== epoch;
-    external_nullifier.rln_identifier &lt;== rln_identifier;
-
-    component a_1 = CalculateA1();
-    a_1.a_0 &lt;== identity_secret;
-    a_1.external_nullifier &lt;== external_nullifier.out;
-
-    y &lt;== identity_secret + a_1.out * x;
-
-...
-</code></pre>
-<p>To calculate and reveal the <code>nullifier</code>:</p>
-<pre><code class="language-swift">...
-
-    component calculateNullifier = CalculateInternalNullifier();
-    calculateNullifier.a_1 &lt;== a_1.out;
-
-    nullifier &lt;== calculateNullifier.out;
-
-...
-</code></pre>
-<h2 id="main-runner-of-the-circuits"><a class="header" href="#main-runner-of-the-circuits">Main runner of the circuits</a></h2>
-<p>Now the Circuits can be used as gadgets. If we want to use it in our app, we need to initialize it and have a <em>main</em> - starting point function. It can be found <a href="https://github.com/privacy-scaling-explorations/rln/blob/master/circuits/rln.circom">here</a>.</p>
-<p>The implementation is super basic:</p>
-<pre><code class="language-swift">pragma circom 2.0.0;
-
-include &quot;./rln-base.circom&quot;;
-
-component main { public [x, epoch, rln_identifier] } = RLN(15);
-</code></pre>
-<p>That's the whole <strong>RLN</strong> Circom Circuit :) Here we just need to list all public inputs (<code>x,</code> <code>epoch,</code> <code>rln_identifier</code>; the rest of the inputs are private). Also, we set the depth of the Merkle Tree = 15 (max of 32768 members).</p>
+<p>Private: </p>
+<ul>
+<li>Secret Key <code>h(trapdoor, nullifier)</code> - This is to prove you are in some merkle tree, and to make the <code>y_share</code>, and <code>internal_nullifier</code> unique to an <code>id_commitment</code>.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>Internal_Nullifier</code>
+<ul>
+<li>Used to identify a unique user during a specific epoch (external_nullifier)</li>
+</ul>
+</li>
+<li><code>Y_Share</code>
+<ul>
+<li>This is the <a href="https://rate-limiting-nullifier.github.io/rln-docs/sss.html">Shamir's Secret Sharing</a> share</li>
+</ul>
+</li>
+</ul>
+<h2 id="update-to-v2"><a class="header" href="#update-to-v2">Update to V2</a></h2>
+<p>Instead of using higher degree polynomials to generate coefficients for higher epoch limits, we can add an input to the hash function, which is a counter <code>k</code> that ranges from 1 to <code>n</code>, the <code>epoch limit</code> (which can be <code>id_commitment</code> specific, for example in a registry contract.</p>
+<p>The scheme would work as follows:</p>
+<ul>
+<li>The user generates a secret <code>a_0</code></li>
+<li>The coefficient <code>a_1</code> is generated by taking the hash of <code>a_0</code>, an external nullifier, and the counter <code>k</code>: h(<code>a_0</code>, <code>external_nullifier</code>, <code>k</code>)</li>
+<li>The <code>internal_nullifier</code> is then generated by taking the hash of <code>a_1</code>: h(<code>a_1</code>)</li>
+</ul>
+<p>By adding the counter <code>k</code> as an input to the hash function, the scheme becomes more flexible but still simple. It ensures that the user cannot use a value of <code>k</code> greater than <code>n</code>, which is the epoch limit, and if the user uses the same value of <code>k</code> twice, they will have two or more <code>internal_nullifiers</code> that collide, which allow the <code>y_shares</code> to be used determine their slashing credentials.</p>
+<p>Overall, this proposal aims to provide more flexibility to the scheme while maintaining its simplicity.</p>
+<h3 id="additional-inputs"><a class="header" href="#additional-inputs">Additional Inputs</a></h3>
+<p>The only additional inputs are:</p>
+<ul>
+<li>[private] Message ID (Counter) <code>k</code> - a unique id per message per epoch, somewhere between the range <code>1 &lt; k &lt; n</code></li>
+<li>[public] Message Limit <code>n</code> - the max number of messages a user can send</li>
+</ul>
+<h3 id="additional-properties"><a class="header" href="#additional-properties">Additional Properties</a></h3>
+<p>There are also other cool features that come along with using this scheme:</p>
+<ul>
+<li>Internal nullifier value is different for different messages during the epoch (so it's more anonymous), even when having more than 1 signal per epoch</li>
+<li>It's more secure and resistant to algebraic attacks (which could arise in the N-RLN scheme linked above)</li>
+</ul>
+<h3 id="different-rate-limits"><a class="header" href="#different-rate-limits">Different Rate-Limits</a></h3>
+<p>By using this scheme we created a circuit, that will allow us to use different rate-limits for different users, for example based on their stake.</p>
+<p>We can do that by committing to not only our secret, but our secret and limit:</p>
+<ol>
+<li>Registry (map) is stored on a smart-contract, where keys are public keys (<code>id_commitment = Hash(identity_secret)</code>) of users and values are some metadata (for example <code>limit</code> number or stake amount);</li>
+<li>Merkle tree, where leaves are <code>rate_limit</code>'s = <code>Hash(id_commitment, userMessagelimit)</code> </li>
+</ol>
+<p>For example, the possible limit is 1000 (<code>n</code> = 1000), and each message costs 0.001 ETH (so you will have 1000 messages limit if you stake 1 ETH).</p>
+<p>So, when you join app you attach the amount of stake you want and also send the <code>id_commitment</code> and <code>rate_commitment = Hash(id_commitment, userMessageLimit)</code> will be calculated on-chain based on your stake.</p>
+<p>Signaling will use other circuit, where your <code>limit</code> is private input, and the counter <code>k</code> is checked that it's in the range from 1 to <code>userMessageLimit</code>.</p>
+<hr />
+<p><em>This text is from @AtHeartEngineer <a href="https://zkresear.ch/t/rate-limit-nullifier-v2-circuits/102">post</a> on <a href="https://zkresear.ch">zkResear.ch</a></em>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="formal-spec"><a class="header" href="#formal-spec">Formal spec</a></h1>
+<p><em><a href="https://rfc.vac.dev/spec/58/">RFC for RLN-V2</a></em></p>
+<ul>
+<li><a href="formal_spec.html#utils-templates">Utils</a>
+<ul>
+<li><a href="formal_spec.html#merkletreeinclusionproof">MerkleTreeInclusionProof</a></li>
+<li><a href="formal_spec.html#isininterval">IsInInterval</a></li>
+</ul>
+</li>
+<li><a href="formal_spec.html#rln-same-templates">RLN-same</a></li>
+<li><a href="formal_spec.html#rln-diff-templates">RLN-diff</a></li>
+<li><a href="formal_spec.html#withdrawal">Withdrawal</a></li>
+</ul>
+<hr />
+<h2 id="utils"><a class="header" href="#utils">Utils</a></h2>
+<p><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits-v2/blob/main/circuits/utils.circom">utils.circom</a> is a set of templates/gadgets that the RLN circuits uses.</p>
+<p>These are: </p>
+<ul>
+<li>MerkleTreeInclusionProof - Merkle Tree inclusion check, used like set membership check;</li>
+<li>IsInInterval - used for range check.</li>
+</ul>
+<p>Their description is given below.</p>
+<h3 id="merkletreeinclusionproof"><a class="header" href="#merkletreeinclusionproof">MerkleTreeInclusionProof</a></h3>
+<p><code>MerkleTreeInclusionProof(DEPTH)</code> template used for verification of inclusion in full binary incremental merkle tree. The implementation is a fork of https://github.com/privacy-scaling-explorations/incrementalquintree, and changed to <em>binary</em> tree and refactored to <em>Circom 2.1.0</em>.</p>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>DEPTH</code> - depth of the Merkle Tree.</li>
+</ul>
+<p><strong>Inputs</strong>:</p>
+<ul>
+<li><code>leaf</code> - <code>Poseidon(elem)</code>, where <code>elem</code> is the element that's checked for inclusion;</li>
+<li><code>pathIndex[DEPTH]</code> - array of length = <code>DEPTH</code>, consists of <code>0 | 1</code>, represents Merkle proof path. 
+Basically, it says how to calculate Poseidon hash, e.g. for two inputs <code>input1</code>, <code>input2</code>, if the <code>pathIndex[i] = 0</code> it shoud be calculated as <code>Poseidon(input1, input2)</code>, otherwise <code>Poseidon(input2, input1)</code>;</li>
+<li><code>pathElements[DEPTH]</code> - array of length = <code>DEPTH</code>, represents elements of the Merkle proof.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>root</code> - Root of the merkle tree.</li>
+</ul>
+<p><strong>Templates used</strong>:</p>
+<ul>
+<li><a href="https://github.com/iden3/circomlib/blob/master/circuits/mux1.circom">mux1.circom</a> from circomlib;</li>
+<li><a href="https://github.com/iden3/circomlib/blob/master/circuits/poseidon.circom">poseidon.circom</a> from circomlib.</li>
+</ul>
+<h3 id="isininterval"><a class="header" href="#isininterval">IsInInterval</a></h3>
+<p><code>IsInInterval(LIMIT_BIT_SIZE)</code> template used for range check, e.g. (x &lt;= y &lt;= z).</p>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>LIMIT_BIT_SIZE</code> - maximum bit size of numbers that are used in range check, f.e. for the <code>LIMIT_BIT_SIZE</code> = 16, input numbers allowed to be in the interval <code>[0, 65536)</code>.</li>
+</ul>
+<p><strong>Inputs</strong>:</p>
+<ul>
+<li><code>in[3]</code> - array of 3 elements.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>out</code> - bool value (<code>0 | 1</code>). Outputs 1 when the circuit is satisfied, otherwise - 0.</li>
+</ul>
+<p><strong>Templates used</strong>:</p>
+<ul>
+<li><a href="https://github.com/iden3/circomlib/blob/master/circuits/comparators.circom#L105"><code>LessEqThan(n)</code></a> from circomlib.</li>
+</ul>
+<p><strong>Logic/Constraints</strong>:
+Checked that <code>in[0] &lt;= in[1] &lt;= in[2]</code>. That's done by combining two <code>LessEqThan</code> checks. 
+<code>out</code> value is calculated as a multiplication of two <code>LessEqThan</code> outputs.</p>
+<hr />
+<h2 id="rln-same"><a class="header" href="#rln-same">RLN-same</a></h2>
+<p><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits-v2/blob/main/circuits/rln-same.circom">rln-same.circom</a> is a template that's used for <a href="https://rfc.vac.dev/spec/58/#rln-same-flow">RLN-same protocol</a>. </p>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>DEPTH</code> - depth of a Merkle Tree. Described <a href="formal_spec.html#merkletreeinclusionproof">here</a>;</li>
+<li><code>LIMIT_BIT_SIZE</code> - maximum bit size of numbers that are used in range check. Described <a href="formal_spec.html#isininterval">here</a>.</li>
+</ul>
+<p><strong>Private inputs</strong>:</p>
+<ul>
+<li><code>identitySecret</code> - randomly generated number in <code>F_p</code>, used as private key;</li>
+<li><code>messageId</code> - id of the message;</li>
+<li><code>pathElements[DEPTH]</code> - pathElements[DEPTH], described <a href="formal_spec.html#merkletreeinclusionproof">here</a>;</li>
+<li><code>identityPathIndex[DEPTH]</code> - pathIndex[DEPTH], described <a href="formal_spec.html#merkletreeinclusionproof">here</a>.</li>
+</ul>
+<p><strong>Public inputs</strong>:</p>
+<ul>
+<li><code>x</code> - <code>Hash(signal)</code>, where <code>signal</code> is for example message, that was sent by user;</li>
+<li><code>externalNullifier</code> - <code>Hash(epoch, rln_identifier)</code>;</li>
+<li><code>messageLimit</code> - message limit of an RLN app.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>y</code> - calculated first-degree linear polynomial (y = kx + b);</li>
+<li><code>root</code> - root of the Merkle Tree;</li>
+<li><code>nullifier</code> - internal nullifier/pseudonym of the user in anonyomus environment.</li>
+</ul>
+<p><strong>Logic/Constraints</strong>:</p>
+<ol>
+<li>Merkle tree membership check:
+<ul>
+<li><code>identityCommitment</code> = <code>Poseidon(identitySecret)</code> calculation;</li>
+<li><a href="formal_spec.html#merkletreeinclusionproof">Merkle tree inclusion check</a> for the <code>identityCommitment</code>.</li>
+</ul>
+</li>
+<li>Range check:
+<ul>
+<li><a href="formal_spec.html#isininterval">Range check</a> that <code>1 &lt;= messageId &lt;= messageLimit</code>.</li>
+</ul>
+</li>
+<li>Polynomial share calculation:
+<ul>
+<li><code>a1</code> = <code>Poseidon(identitySecret, externalNullifier, messageId)</code>;</li>
+<li><code>y</code> = <code>identitySecret + a1 * x</code>.</li>
+</ul>
+</li>
+<li>Output of calculated <code>root</code>, <code>share</code> and <code>nullifier</code> = <code>Poseidon(a_1)</code> values.</li>
+</ol>
+<hr />
+<h2 id="rln-diff"><a class="header" href="#rln-diff">RLN-diff</a></h2>
+<p><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits-v2/blob/main/circuits/rln-diff.circom">rln-diff.circom</a> is a template that's used for <a href="https://rfc.vac.dev/spec/58/#rln-diff-flow">RLN-diff protocol</a>. </p>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>DEPTH</code> - depth of a Merkle Tree. Described <a href="formal_spec.html#merkletreeinclusionproof">here</a>;</li>
+<li><code>LIMIT_BIT_SIZE</code> - maximum bit size of numbers that are used in range check. Described <a href="formal_spec.html#isininterval">here</a>.</li>
+</ul>
+<p><strong>Private inputs</strong>:</p>
+<ul>
+<li><code>identitySecret</code> - randomly generated number in <code>F_p</code>, used as a private key;</li>
+<li><code>userMessageLimit</code> - message limit of the user;</li>
+<li><code>messageId</code> - id of the message;</li>
+<li><code>pathElements[DEPTH]</code> - pathElements[DEPTH], described <a href="formal_spec.html#merkletreeinclusionproof">here</a>;</li>
+<li><code>identityPathIndex[DEPTH]</code> - pathIndex[DEPTH], described <a href="formal_spec.html#merkletreeinclusionproof">here</a>.</li>
+</ul>
+<p><strong>Public inputs</strong>:</p>
+<ul>
+<li><code>x</code> - <code>Hash(signal)</code>, where <code>signal</code> is for example message, that was sent by user;</li>
+<li><code>externalNullifier</code> - <code>Hash(epoch, rln_identifier)</code>.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>y</code> - calculated first-degree linear polynomial (y = kx + b);</li>
+<li><code>root</code> - root of the Merkle Tree;</li>
+<li><code>nullifier</code> - internal nullifier/pseudonym of the user in anonyomus environment.</li>
+</ul>
+<p><strong>Logic/Constraints</strong>:</p>
+<ol>
+<li>Merkle tree membership check:
+<ul>
+<li><code>identityCommitment</code> = <code>Poseidon(identitySecret, )</code> calculation;</li>
+<li><code>rateCommitment</code> = <code>Poseidon(identityCommitment, userMessageLimit)</code> calculation;</li>
+<li><a href="formal_spec.html#merkletreeinclusionproof">Merkle tree inclusion check</a> for the <code>rateCommitment</code>.</li>
+</ul>
+</li>
+<li>Range check:
+<ul>
+<li><a href="formal_spec.html#isininterval">Range check</a> that <code>1 &lt;= messageId &lt;= userMessageLimit</code>.</li>
+</ul>
+</li>
+<li>Polynomial share calculation:
+<ul>
+<li><code>a1</code> = <code>Poseidon(identitySecret, externalNullifier, messageId)</code>;</li>
+<li><code>y</code> = <code>identitySecret + a1 * x</code>.</li>
+</ul>
+</li>
+<li>Output of calculated <code>root</code>, <code>share</code> and <code>nullifier</code> = <code>Poseidon(a_1)</code> values.</li>
+</ol>
+<hr />
+<h3 id="withdrawal"><a class="header" href="#withdrawal">Withdrawal</a></h3>
+<p><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits-v2/blob/main/circuits/withdraw.circom">withdraw.circom</a> is a template that's used for the withdrawal/slashing and is needed to prevent front run while withdrawing the stake from the smart-contract/registry. </p>
+<p><strong>Private inputs</strong>:</p>
+<ul>
+<li><code>identitySecret</code> - randomly generated number in <code>F_p</code>, used as private key.</li>
+</ul>
+<p><strong>Public inputs</strong>:</p>
+<ul>
+<li><code>addressHash</code> - <code>F_p</code> scalar field element. <code>addressHash</code> = <code>Hash(address)</code>, where <code>address</code> is ETH address that'll receive stake. </li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>identityCommitment</code> = <code>Poseidon(identitySecret)</code>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="uses"><a class="header" href="#uses">Uses</a></h1>
 <p>This section contains list of apps that use <strong>RLN</strong>:</p>
 <ul>
@@ -525,6 +574,15 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="references"><a class="header" href="#references">References</a></h1>
 <ul>
 <li>
+<p><a href="https://rfc.vac.dev/spec/32/">RFC V1</a></p>
+</li>
+<li>
+<p><a href="https://rfc.vac.dev/spec/58/">RFC V2</a></p>
+</li>
+<li>
+<p><a href="https://zkresear.ch/t/rate-limit-nullifier-v2-circuits/102">zkResearch post</a></p>
+</li>
+<li>
 <p><a href="https://ethresear.ch/t/semaphore-rln-rate-limiting-nullifier-for-spam-prevention-in-anonymous-p2p-setting/5009">First Proposal/Idea of RLN by Barry WhiteHat</a></p>
 </li>
 <li>
@@ -598,5 +656,6 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
         });
         </script>
 
+    </div>
     </body>
 </html>

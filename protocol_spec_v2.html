@@ -1,0 +1,268 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Protocol spec V2 - Rate-Limiting Nullifier</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="under_the_hood.html"><strong aria-hidden="true">2.2.</strong> Under the hood</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="protocol_spec.html"><strong aria-hidden="true">2.2.1.</strong> Protocol spec V1</a></li><li class="chapter-item expanded "><a href="protocol_spec_v2.html" class="active"><strong aria-hidden="true">2.2.2.</strong> Protocol spec V2</a></li><li class="chapter-item expanded "><a href="formal_spec.html"><strong aria-hidden="true">2.2.3.</strong> Formal spec</a></li></ol></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.3.</strong> Uses</a></li></ol></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to use</a></li><li><ol class="section"><li class="chapter-item expanded "><div><strong aria-hidden="true">3.1.</strong> JavaScript RLN</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.2.</strong> Rust RLN</div></li></ol></li><li class="chapter-item expanded "><a href="theory.html"><strong aria-hidden="true">4.</strong> Theory</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">4.1.</strong> Shamir's Secret Sharing</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="terminology.html"><strong aria-hidden="true">5.1.</strong> A - Terminology</a></li><li class="chapter-item expanded "><a href="references.html"><strong aria-hidden="true">5.2.</strong> B - References</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rate-Limiting Nullifier</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="protocol-spec-v2"><a class="header" href="#protocol-spec-v2">Protocol spec V2</a></h1>
+<h2 id="tldr"><a class="header" href="#tldr">TL;DR</a></h2>
+<p>The main goal of RLN v2 circuits is to make it possible to have a custom amount of messages (signals) per epoch without using a separate circuit or high-degree polynomials for <a href="https://rate-limiting-nullifier.github.io/rln-docs/sss.html">Shamir's Secret Sharing</a>.</p>
+<h2 id="rln-v1"><a class="header" href="#rln-v1">RLN V1</a></h2>
+<p>The <a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/blob/master/circuits/rln.circom">Current RLN circuit</a> uses a first-degree polynomial for shares generation (and slashing). Therefore, there is a limit - one message per epoch. </p>
+<p>There have been attempts to make schemes in which the message limit per epoch is greater than one. For example, <a href="https://hackmd.io/zOk-bQ2GSgaJ1t1bI7zrWQ?view">N-RLN scheme</a> &amp; <a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/blob/master/circuits/nrln-base.circom">N-RLN Circuits</a>. But this approach is very problematic; the bigger the epoch limit, the higher the polynomial for Shamir's Secret Sharing, and the more complicated the circuit is(more R1CS, etc.).</p>
+<p>We have generally advised using 1 message/signal per epoch and adjusting the epoch length to match the rate limit desired for your use case. However, this isn’t very flexible and constrains the epoch length for all users to be the same per semaphore group (merkle tree).</p>
+<h3 id="overview-of-rln-v1-circuits"><a class="header" href="#overview-of-rln-v1-circuits">Overview of RLN v1 circuits</a></h3>
+<p>Before we move on, this is a quick refresher on the inputs/outputs of the RLN v1 circuits and their general purpose. If you want more detail on how RLN circuits work, please <a href="https://rate-limiting-nullifier.github.io/rln-docs/protocol_spec.html">read this</a>, which goes into more detail.</p>
+<p><strong>Inputs</strong>:</p>
+<p>Public: </p>
+<ul>
+<li><code>external_nullifier</code> = <code>h(rln_identifier, epoch)</code> - <em>This identifies a unique epoch per app</em>, where <code>rln_identifier</code> is some unique identifier for an app and <code>epoch</code> is some unique identifier for an event or time;</li>
+<li><code>x</code> = <code>h(message)</code>.</li>
+</ul>
+<p>Private: </p>
+<ul>
+<li>Secret Key <code>h(trapdoor, nullifier)</code> - This is to prove you are in some merkle tree, and to make the <code>y_share</code>, and <code>internal_nullifier</code> unique to an <code>id_commitment</code>.</li>
+</ul>
+<p><strong>Outputs</strong>:</p>
+<ul>
+<li><code>Internal_Nullifier</code>
+<ul>
+<li>Used to identify a unique user during a specific epoch (external_nullifier)</li>
+</ul>
+</li>
+<li><code>Y_Share</code>
+<ul>
+<li>This is the <a href="https://rate-limiting-nullifier.github.io/rln-docs/sss.html">Shamir's Secret Sharing</a> share</li>
+</ul>
+</li>
+</ul>
+<h2 id="update-to-v2"><a class="header" href="#update-to-v2">Update to V2</a></h2>
+<p>Instead of using higher degree polynomials to generate coefficients for higher epoch limits, we can add an input to the hash function, which is a counter <code>k</code> that ranges from 1 to <code>n</code>, the <code>epoch limit</code> (which can be <code>id_commitment</code> specific, for example in a registry contract.</p>
+<p>The scheme would work as follows:</p>
+<ul>
+<li>The user generates a secret <code>a_0</code></li>
+<li>The coefficient <code>a_1</code> is generated by taking the hash of <code>a_0</code>, an external nullifier, and the counter <code>k</code>: h(<code>a_0</code>, <code>external_nullifier</code>, <code>k</code>)</li>
+<li>The <code>internal_nullifier</code> is then generated by taking the hash of <code>a_1</code>: h(<code>a_1</code>)</li>
+</ul>
+<p>By adding the counter <code>k</code> as an input to the hash function, the scheme becomes more flexible but still simple. It ensures that the user cannot use a value of <code>k</code> greater than <code>n</code>, which is the epoch limit, and if the user uses the same value of <code>k</code> twice, they will have two or more <code>internal_nullifiers</code> that collide, which allow the <code>y_shares</code> to be used determine their slashing credentials.</p>
+<p>Overall, this proposal aims to provide more flexibility to the scheme while maintaining its simplicity.</p>
+<h3 id="additional-inputs"><a class="header" href="#additional-inputs">Additional Inputs</a></h3>
+<p>The only additional inputs are:</p>
+<ul>
+<li>[private] Message ID (Counter) <code>k</code> - a unique id per message per epoch, somewhere between the range <code>1 &lt; k &lt; n</code></li>
+<li>[public] Message Limit <code>n</code> - the max number of messages a user can send</li>
+</ul>
+<h3 id="additional-properties"><a class="header" href="#additional-properties">Additional Properties</a></h3>
+<p>There are also other cool features that come along with using this scheme:</p>
+<ul>
+<li>Internal nullifier value is different for different messages during the epoch (so it's more anonymous), even when having more than 1 signal per epoch</li>
+<li>It's more secure and resistant to algebraic attacks (which could arise in the N-RLN scheme linked above)</li>
+</ul>
+<h3 id="different-rate-limits"><a class="header" href="#different-rate-limits">Different Rate-Limits</a></h3>
+<p>By using this scheme we created a circuit, that will allow us to use different rate-limits for different users, for example based on their stake.</p>
+<p>We can do that by committing to not only our secret, but our secret and limit:</p>
+<ol>
+<li>Registry (map) is stored on a smart-contract, where keys are public keys (<code>id_commitment = Hash(identity_secret)</code>) of users and values are some metadata (for example <code>limit</code> number or stake amount);</li>
+<li>Merkle tree, where leaves are <code>rate_limit</code>'s = <code>Hash(id_commitment, userMessagelimit)</code> </li>
+</ol>
+<p>For example, the possible limit is 1000 (<code>n</code> = 1000), and each message costs 0.001 ETH (so you will have 1000 messages limit if you stake 1 ETH).</p>
+<p>So, when you join app you attach the amount of stake you want and also send the <code>id_commitment</code> and <code>rate_commitment = Hash(id_commitment, userMessageLimit)</code> will be calculated on-chain based on your stake.</p>
+<p>Signaling will use other circuit, where your <code>limit</code> is private input, and the counter <code>k</code> is checked that it's in the range from 1 to <code>userMessageLimit</code>.</p>
+<hr />
+<p><em>This text is from @AtHeartEngineer <a href="https://zkresear.ch/t/rate-limit-nullifier-v2-circuits/102">post</a> on <a href="https://zkresear.ch">zkResear.ch</a></em>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="protocol_spec.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="formal_spec.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="protocol_spec.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="formal_spec.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid.min.js"></script>
+        <script src="mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>
