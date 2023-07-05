@@ -1,7 +1,7 @@
 # What is Rate-Limiting Nullifier?
 
 
-**RLN** is a zero-knowledge gadget that enables spam prevention for decentralized, anonymous environments.
+**RLN** is a zero-knowledge gadget that enables spam prevention for anonymous environments.
 
 The anonymity property opens up the possibility for spam and Sybil attack vectors for certain applications, which could seriously degrade the user experience and the overall functioning of the application. For example, imagine a chat application where users are anonymous. Now, everyone can write an unlimited number of spam messages, but we don't have the ability to kick this member because the spammer is anonymous. 
 
@@ -12,13 +12,15 @@ Moreover, **RLN** can be useful not only to prevent spam attacks but, in general
 ## How it works
 
 The **RLN** construct's functionality consists of three parts, which, when integrated together, provide spam and Sybil attack protection. These parts should be integrated by the upstream applications, which require anonymity and spam protection. The applications can be centralized or decentralized. For decentralized applications, each user maintains separate storage and compute resources for the application. The three parts are:
-* User registration
-* User interaction
-* User removal (slashing)
+* registration;
+* interaction;
+* withdrawal/slashing;
 
 ### User registration
 
-Before registering to the application, the user needs to generate a secret key and derive an identity commitment from the secret key using the `Poseidon` hash function `identityCommitment = posseidonHash(secretKey)`.
+Before registering to the application, the user needs to generate a secret key and derive an identity commitment from the secret key using the Poseidon hash function: 
+
+\\[identityCommitment = Poseidon(secretKey)\\]
 
 The user registers to the application by providing a form of stake and their identity commitment, which is derived from the secret key. The application maintains a Merkle tree data structure (in the latest iteration of **RLN**, we use an Incremental Merkle Tree algorithm for gas efficiency, but the Merkle tree does not have to be on-chain), which stores the identity commitments of the registered users. Upon successful registration, the user's identity commitment is stored in a leaf of the Merkle tree, and an index is given to them, representing their position in the tree.
 
