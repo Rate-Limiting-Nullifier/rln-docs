@@ -90,11 +90,33 @@
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
@@ -146,19 +168,18 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p><img src="./images/logo.svg" alt="RLN Logo" /></p>
-<p><strong>RLN</strong> (Rate-Limiting Nullifier) is a zk-gadget/protocol that enables spam prevention mechanism for anonymous environments.</p>
-<h2 id="rln-components-tools-and-libraries"><a class="header" href="#rln-components-tools-and-libraries">RLN Components, Tools, and Libraries</a></h2>
-<div class="table-wrapper"><table><thead><tr><th></th><th style="text-align: right">Version</th><th style="text-align: center">Stable</th><th style="text-align: center">In Development</th><th>Notes</th><th>URL</th></tr></thead><tbody>
-<tr><td>RLN Circuits</td><td style="text-align: right">1.0</td><td style="text-align: center">✅</td><td style="text-align: center">✅</td><td><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/blob/master/circuits/rln-base.circom">Current Circuit</a></td><td><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/">main branch</a></td></tr>
-<tr><td></td><td style="text-align: right">2.0</td><td style="text-align: center">❌</td><td style="text-align: center">✅</td><td><a href="https://hackmd.io/@curryrasul/SJH8kP8hi">v2 Proposal</a></td><td><a href="https://github.com/Rate-Limiting-Nullifier/rln-circuits/issues/3">v2 issue</a></td></tr>
-<tr><td>RLNjs</td><td style="text-align: right">1.0</td><td style="text-align: center">✅</td><td style="text-align: center">❌</td><td>Supports RLN v1 circuits</td><td><a href="https://github.com/Rate-Limiting-Nullifier/rlnjs/tree/35b9d21c7d97289ef10c018c7e214d00fa779976">v1 commit</a></td></tr>
-<tr><td></td><td style="text-align: right">2.0</td><td style="text-align: center">❌</td><td style="text-align: center">✅</td><td>Rewrite, added Registry/Cache, Supports v1 circuits</td><td><a href="https://github.com/Rate-Limiting-Nullifier/rlnjs/tree/main">main branch</a></td></tr>
-<tr><td></td><td style="text-align: right">2.1</td><td style="text-align: center">❌</td><td style="text-align: center">✅</td><td>Will support v2 circuits</td><td><a href="https://github.com/Rate-Limiting-Nullifier/rlnjs/issues/17">v2.1 Issue</a></td></tr>
-<tr><td>RLN-CLI</td><td style="text-align: right">0.1</td><td style="text-align: center">❌</td><td style="text-align: center">✅</td><td>Rust</td><td><a href="https://github.com/Rate-Limiting-Nullifier/rln-cli">main branch</a></td></tr>
-<tr><td>PMTree</td><td style="text-align: right">0.1</td><td style="text-align: center">❌</td><td style="text-align: center">✅</td><td>Rust</td><td><a href="https://github.com/Rate-Limiting-Nullifier/pmtree">main branch</a></td></tr>
-</tbody></table>
+                        <div align="center">
+<p><img src="./images/logo.svg" alt="RLN Logo" /></p>
 </div>
+<p><strong>RLN</strong> (Rate-Limiting Nullifier) is a zk-gadget/protocol that enables spam prevention mechanism for anonymous environments.</p>
+<!-- ## RLN Components, Tools, and Libraries -->
+<!-- |              | Version | Stable | In Development | URL |
+|--------------|-----:|:-:|:--:|-|-|
+| circom-rln   |  1.0 | ✅ | ✅ | [main branch](https://github.com/Rate-Limiting-Nullifier/rln-circuits/)|
+|              |  2.0 | ❌ | ✅ | [v2 issue](https://github.com/Rate-Limiting-Nullifier/rln-circuits/issues/3)|
+| RLNjs        |  1.0 | ✅ | ❌ | [v1 commit](https://github.com/Rate-Limiting-Nullifier/rlnjs/tree/35b9d21c7d97289ef10c018c7e214d00fa779976)|
+|              |  2.0 | ❌ | ✅ | [main branch](https://github.com/Rate-Limiting-Nullifier/rlnjs/tree/main)|
+|              |  2.1 | ❌ | ✅ | [v2.1 Issue](https://github.com/Rate-Limiting-Nullifier/rlnjs/issues/17)| -->
 <blockquote>
 <p><strong>RLN</strong> is part of (<strong>PSE</strong>) <a href="https://appliedzkp.org">Privacy &amp; Scaling Explorations</a>, a multidisciplinary team supported by the Ethereum Foundation. PSE explores new use cases for zero-knowledge proofs and other cryptographic primitives.</p>
 </blockquote>

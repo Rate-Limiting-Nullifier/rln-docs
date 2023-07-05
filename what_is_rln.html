@@ -90,11 +90,33 @@
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
@@ -147,19 +169,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="what-is-rate-limiting-nullifier"><a class="header" href="#what-is-rate-limiting-nullifier">What is Rate-Limiting Nullifier?</a></h1>
-<p><strong>RLN</strong> is a zero-knowledge gadget that enables spam prevention for decentralized, anonymous environments.</p>
+<p><strong>RLN</strong> is a zero-knowledge gadget that enables spam prevention for anonymous environments.</p>
 <p>The anonymity property opens up the possibility for spam and Sybil attack vectors for certain applications, which could seriously degrade the user experience and the overall functioning of the application. For example, imagine a chat application where users are anonymous. Now, everyone can write an unlimited number of spam messages, but we don't have the ability to kick this member because the spammer is anonymous. </p>
 <p><strong>RLN</strong> helps us identify and &quot;kick&quot; the spammer.</p>
 <p>Moreover, <strong>RLN</strong> can be useful not only to prevent spam attacks but, in general, to limit users (in anonymous environments) in the number of actions (f.e. to vote or to make a bid).</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How it works</a></h2>
 <p>The <strong>RLN</strong> construct's functionality consists of three parts, which, when integrated together, provide spam and Sybil attack protection. These parts should be integrated by the upstream applications, which require anonymity and spam protection. The applications can be centralized or decentralized. For decentralized applications, each user maintains separate storage and compute resources for the application. The three parts are:</p>
 <ul>
-<li>User registration</li>
-<li>User interaction</li>
-<li>User removal (slashing)</li>
+<li>registration;</li>
+<li>interaction;</li>
+<li>withdrawal/slashing;</li>
 </ul>
 <h3 id="user-registration"><a class="header" href="#user-registration">User registration</a></h3>
-<p>Before registering to the application, the user needs to generate a secret key and derive an identity commitment from the secret key using the <code>Poseidon</code> hash function <code>identityCommitment = posseidonHash(secretKey)</code>.</p>
+<p>Before registering to the application, the user needs to generate a secret key and derive an identity commitment from the secret key using the Poseidon hash function: </p>
+<p>\[identityCommitment = Poseidon(secretKey)\]</p>
 <p>The user registers to the application by providing a form of stake and their identity commitment, which is derived from the secret key. The application maintains a Merkle tree data structure (in the latest iteration of <strong>RLN</strong>, we use an Incremental Merkle Tree algorithm for gas efficiency, but the Merkle tree does not have to be on-chain), which stores the identity commitments of the registered users. Upon successful registration, the user's identity commitment is stored in a leaf of the Merkle tree, and an index is given to them, representing their position in the tree.</p>
 <h3 id="user-interaction"><a class="header" href="#user-interaction">User interaction</a></h3>
 <p>For each interaction that the user wants to make with the application, the user must generate a zero-knowledge proof ensuring that their identity commitment is part of the membership Merkle tree.</p>
