@@ -86,7 +86,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="protocol_spec.html"><strong aria-hidden="true">2.2.</strong> RLN in details</a></li><li class="chapter-item expanded "><a href="formal_spec.html"><strong aria-hidden="true">2.3.</strong> Formal spec</a></li><li class="chapter-item expanded "><a href="smart_contract.html"><strong aria-hidden="true">2.4.</strong> Smart-contract</a></li><li class="chapter-item expanded "><a href="uses.html"><strong aria-hidden="true">2.5.</strong> RLN Uses</a></li></ol></li><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">3.</strong> Shamir's Secret Sharing</a></li><li class="chapter-item expanded "><a href="research.html"><strong aria-hidden="true">4.</strong> Research</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="kzg_rln.html"><strong aria-hidden="true">4.1.</strong> KZG-RLN</a></li><li class="chapter-item expanded "><a href="noir_rln.html"><strong aria-hidden="true">4.2.</strong> Noir-RLN</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="rln.html"><strong aria-hidden="true">1.</strong> RLN</a></li><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="what_is_rln.html"><strong aria-hidden="true">2.1.</strong> What is RLN</a></li><li class="chapter-item expanded "><a href="rln_in_details.html"><strong aria-hidden="true">2.2.</strong> RLN in details</a></li><li class="chapter-item expanded "><a href="formal_spec.html"><strong aria-hidden="true">2.3.</strong> Formal spec</a></li><li class="chapter-item expanded "><a href="smart_contract.html"><strong aria-hidden="true">2.4.</strong> Smart-contract</a></li><li class="chapter-item expanded "><a href="rln_uses.html"><strong aria-hidden="true">2.5.</strong> RLN Uses</a></li></ol></li><li class="chapter-item expanded "><a href="sss.html"><strong aria-hidden="true">3.</strong> Shamir's Secret Sharing</a></li><li class="chapter-item expanded "><a href="research.html"><strong aria-hidden="true">4.</strong> Research</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="kzg_rln.html"><strong aria-hidden="true">4.1.</strong> KZG-RLN</a></li><li class="chapter-item expanded "><a href="noir_rln.html"><strong aria-hidden="true">4.2.</strong> Noir-RLN</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -441,8 +441,17 @@ So, the shares are: \((5, 55), (8, 70), (16, 110)\)</li>
 <h2 id="important-notes"><a class="header" href="#important-notes">Important notes</a></h2>
 <p>Arithmetic in this topic is usual for us. However, in real life, <strong>SSS</strong> arithmetic is defined over some finite field. This means that all calculations are carried out modulo some big prime field. In fact, it happens by itself in Circom because the arithmetic there is defined over the finite field, too, so we don't need to do anything extra). </p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="research"><a class="header" href="#research">Research</a></h1>
+<p>In addition to production-ready <strong>circom-rln</strong> version of RLN protocol, there is also wip on <strong>RLN</strong> R&amp;D to reduce proving time and have bigger choice of implementations. 
+For now you can follow the work on:</p>
+<ul>
+<li><a href="./kzg_rln.html">kzg-rln</a>;</li>
+<li><a href="./noir_rln.html">noir-rln</a>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="kzg-rln"><a class="header" href="#kzg-rln">KZG-RLN</a></h1>
+<p>Read <a href="https://zkresear.ch/t/rln-on-kzg-polynomial-commitment-scheme-cross-posted/114">this post</a> on zkresear.ch.</p>
+<p>WIP in the <a href="https://github.com/Rate-Limiting-Nullifier/kzg-rln">kzg-rln</a> repo.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="noir-rln"><a class="header" href="#noir-rln">Noir-RLN</a></h1>
+<p>WIP in the <a href="https://github.com/Rate-Limiting-Nullifier/noir-rln">noir-rln</a> repo.</p>
 
                     </main>
 
