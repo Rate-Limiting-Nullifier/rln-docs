@@ -1,6 +1,4 @@
-# Formal spec
-
-*[RFC for RLN-V2](https://rfc.vac.dev/spec/58/)*
+# Formal spec of circom-rln
 
 - [Utils](#utils-templates)
     - [MerkleTreeInclusionProof](#merkletreeinclusionproof)
