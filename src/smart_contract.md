@@ -34,9 +34,11 @@ Fees play important role in the economical side of the protocol. They prevent se
 ### Registration
 
 Function **register** is used for registration. It receives \\(identityCommitment\\) as the argument as well as stake amount. Then it calculate messageLimit, based on the stake amount:
-\\[messageLimit = amount / MINIMAL\\_DEPOSIT\\] 
+\\[messageLimit = amount / MINIMAL\\_DEPOSIT\\]. 
 
 Then it stores the \\(identityCommitment\\) in the users' set, and emits an event. Client nodes that need to listen to the event, cause based on that they calculate \\(rateCommitment\\) value. It's important part, because by doing that we don't need to calculate Poseidon hash on-chain, that's not cheap.
+
+It's also important to understand that we may not want to have different rate-limits for different users. We can enforce that by setting the hard value of stake amount.
 
 ### Withdraw | Slashing
 

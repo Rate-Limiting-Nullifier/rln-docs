@@ -40,7 +40,7 @@ Basically, it says how to calculate Poseidon hash, e.g. for two inputs \\(input1
 
 ### RangeCheck
 
-**RangeCheck(LIMIT_BIT_SIZE)** template used for range check, e.g. \\(x \le y \le z\\).
+**RangeCheck(LIMIT_BIT_SIZE)** template used for range check.
 
 **Parameters**:
 * \\(LIMIT\\_BIT\\_SIZE\\) - maximum bit size of numbers that are used in range check, f.e. for the \\(LIMIT\\_BIT\\_SIZE = 16\\), input numbers allowed to be in the interval \\([0, 65536)\\).
