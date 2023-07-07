@@ -223,42 +223,54 @@
 <p>The final property of the <strong>RLN</strong> mechanism is that it allows for the users to be removed from the 
 membership tree by anyone that knows their secret key. Thus, if someone spams, it'll be possible to recover the secret key and withdraw the stake (or <em>slash</em>) of a spammer - that's why it's economically inefficient for users to spam.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="technical-side-of-rln"><a class="header" href="#technical-side-of-rln">Technical side of RLN</a></h1>
-<p><em>This topic is a less strict version of specifications. If you want a more formal description, you can find specs in the <a href="./references.html">references</a>. Also, if you're unfamiliar with Shamir's Secret Sharing scheme, you can <a href="./sss.html">read it here</a>.</em></p>
+<p><em>If you're unfamiliar with Shamir's Secret Sharing scheme, you can <a href="./sss.html">read it here</a>.</em></p>
 <hr />
-<p><img src="./images/rln-circuit.png" alt="alt text" /></p>
-<p align="center">
-  <i>Under the hood: The <b>RLN</b> Circom Circuit</i>
-</p>
 <p><strong>RLN</strong> consists of three parts:</p>
 <ul>
 <li>User registration</li>
 <li>User interaction (signaling)</li>
-<li>User removal (slashing) - additional part</li>
+<li>User removal/withdrawal (slashing) - additional part</li>
 </ul>
 <p>Well, let's discuss them.</p>
 <h2 id="user-registration"><a class="header" href="#user-registration">User registration</a></h2>
-<p>The first part of <strong>RLN</strong> is registration. There is nothing special in <strong>RLN</strong> registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create a Merkle Tree, and every participant must submit a <code>commitment</code> and place it in the Merkle Tree, and after that to interact with the app every participant will create a zkProof's, that they are a <em>member of the tree</em> (we use an <em>Incremental Merkle Tree</em>, as it more <em>GAS efficient</em>).</p>
-<p>So, each member generates a secret key, denoted by \(a_0\). Identity commitment \(q\) is the hash (Poseidon) of the secret key: \(q = Poseidon(a_0)\).</p>
+<p>The first part of <strong>RLN</strong> is registration. There is nothing special in <strong>RLN</strong> registration; it's almost the same process as in other protocols/apps with anonymous environments: we need to create a Merkle tree, and every participant must submit an \(identityCommitment\) and place it in the Merkle Tree, and after that to interact with the app every participant will create a zk proof's, that they are a <em>member of the tree</em>.</p>
+<p>So, each member generates a secret key, denoted by \(a_0\). Identity commitment is the Poseidon hash of the secret key: 
+\[identityCommitment = Poseidon(a_0)\]</p>
 <p><strong>RLN</strong> wouldn't work if there were no punishment for spam; that's why to become a member, a user has to register and provide something at stake. So, whoever has our \(a_0\) can &quot;slash&quot; us. </p>
-<p>The slight difference is that we must enable a <em>secret sharing</em> scheme (to split the <code>commitment</code> into parts). We need to come up with a polynomial. For simplicity we use linear polynomial (e.g. \(f(x) = kx + b\). Therefore, with two points, we can reconstruct the polynomial and recover the secret. </p>
-<p>Our polynomial will be: \(A(x) = a_1 * x + a_0\), where \(a_1 = Poseidon(a_0, external\_nullifier)\).
-The meaning of \(external\_nullifier\) is described below.</p>
+<p>The slight difference is that we must enable a <em>secret sharing</em> scheme (to split the \(a_0\) into parts). We need to come up with a polynomial. For simplicity we use linear polynomial - \(f(x) = kx + b\). Therefore, with two points we can reconstruct the polynomial and recover the secret. </p>
 <h2 id="signalling"><a class="header" href="#signalling">Signalling</a></h2>
-<p>Now that the user is registered, he wants to interact with the system. Imagine that the system is an <em>anonymous chat</em> and the interaction is the sending of messages. 
-So, to send a message user have to come up with <em>share</em> - the point \((x, y)\) on her polynomial. 
-We denote: \(x = Poseidon(message), y = A(x)\). </p>
-<p>Thus, if the same epoch user sends more than one message, their polynomial and, therefore, their secret (\(a_0\)) can be recovered.</p>
-<p>Of course, we somehow must prove that our <em>share</em> = \((x, y)\) is valid (that this is really a point on our <code>polynomial = A(x)</code>), as well as we must prove other things are valid too, that's why we use zkSNARK. An explanation of the zk-circuits can be found in the next topic.</p>
+<p>Now that users are registered, they want to interact with the system. Imagine that the system is an <em>anonymous chat</em> and the interaction is the sending of messages. 
+So, to send a message users have to come up with <em>share</em> - the point \((x, y)\) on their polynomial. 
+We denote: 
+\[x = Poseidon(message)\] 
+\[y = A(x)\]</p>
+<p>Thus, if during the same epoch user sends more than one message, their polynomial and, therefore, their secret - \(a_0\) can be recovered.</p>
+<p>Of course, we somehow must prove that our <em>share</em> = \((x, y)\) is valid (that this is really a point on our polynomial), as well as we must prove other things are valid too, that's why we use zkSNARK.</p>
+<h3 id="range-check-trick-and-resulting-polynomial"><a class="header" href="#range-check-trick-and-resulting-polynomial">Range check trick and resulting polynomial</a></h3>
+<p>As it was said - we use first-degree polynomial for simplicity of the protocol and circuits. But you may ask - does it limit the system to only one message per epoch? Yes, and it's really undesirable, cause we want to have higher rate-limits. What we can do is to use polynomial of higher degree, but we also can do a clever trick: we can introduce an additional circuit input: \(messageId\), that will serve us as a simple counter. </p>
+<p>Let's say we make \(messageLimit = n\). Then for each message we send (during the same epoch) - we also need an additional input \(messageId\). This value will be range checked that it's less than \(messageLimit\) (to be more precise: \(0 \le messageId &lt; messageLimit\)). And our polynomial will depend on this input as well, so that for each message - different \(messageId\) will be used, therefore the resulting polynomials will be different. </p>
+<p>Our polynomial will be: 
+\[A(x) = a_1 * x + a_0\]
+\[a_1 = Poseidon(a_0, externalNullifier, messageId)\]</p>
+<p>The meaning of \(externalNullifier\) is described <a href="rln_in_details.html#nullifiers">below</a>.</p>
+<p>It's sound, because if we use the same \(messageId\) twice - we'll share two different points from our first-degree polynomial, therefore it'll be possible to recover the secret key. And at the same time user also cannot input \(messageId\) value that's bigger than the \(messageLimit\), because of the range check.</p>
+<h3 id="different-rate-limits-for-different-users"><a class="header" href="#different-rate-limits-for-different-users">Different rate-limits for different users</a></h3>
+<p>It's also may be desired to have different rate-limits for different users, for example based on their stake amount. We can also achieve that by calculating \(userMessageLimit\) value and then deriving \(rateCommitment\):
+\[rateCommitment = Poseidon(identityCommitment, rateCommitment)\]
+during the registration phase.</p>
+<p>And it's the \(rateCommitment\) values that are stored in the membership Merkle tree.</p>
+<p>Therefore, in the circuit users will have to prove that the: 
+\[identityCommitment = Poseidon(identitySecret)\]
+\[rateCommitment = Poseidon(identityCommitment, userMessageLimit)\]
+\[0 \le messageId &lt; userMessageLimit\]</p>
+<p>We use the scheme with \(userMessageLimit\) as it more general, though it's not necessarily to have different rate-limits for different users. We can enforce that the users will have the same rate-limit during the registration. For more information on that read <a href="./smart_contract.html#registration">smart-contract explanation</a>.</p>
 <h2 id="slashing"><a class="header" href="#slashing">Slashing</a></h2>
-<p>As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake.</p>
+<p>As it's been said, if a user sends more than one message, everyone else will be able to recover his secret, slash them and take their stake. Based on <a href="rln_in_details.html#nullifiers">\(nullifier\)</a> we can find the spammer, and therefore use polynomial interpolation using their shares. More information can be found in <a href="./smart_contract.html">smart-contract explanation</a>.</p>
 <h2 id="nullifiers"><a class="header" href="#nullifiers">Nullifiers</a></h2>
-<p>There are also \(internal\_nullifier\) and \(external\_nullifier\), which can be found in the <strong>RLN</strong> protocol/circuits.</p>
-<p>\(external\_nullifier = Poseidon(epoch, rln\_identifier)\), where \(rln\_identifier\) is a random finite field value, unique per RLN app.</p>
-<p>The \(external\_nullifier\) is required so that the user can securely use the same private key \(a_0\) across different <strong>RLN</strong> apps - in different applications (and in different eras) with the same secret key, the user will have different values ​​of the coefficient \(a_1\).</p>
-<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public \(internal\_nullifier = Poseidon(a_1)\), so if a user sends more than one message, it will be immediately visible to everyone.</p>
-<h2 id="some-important-notes"><a class="header" href="#some-important-notes">Some important notes</a></h2>
-<p>Also, in our example (and <a href="https://github.com/njofce/zk-chat">zk-chat</a> implementation), we use linear polynomial, but <a href="sss.html">SSS</a> allows us to use various degree polynomials; therefore we can implement a protocol, where more than one signal (message) can be sent in per epoch. </p>
-<p>To learn more, check out the <a href="https://hackmd.io/7GR5Vi28Rz2EpEmLK0E0Aw?view">specification</a>; there are also <a href="https://github.com/privacy-scaling-explorations/rln/tree/master/circuits">circuits</a> implemented for various degree polynomials too.</p>
+<p>There are also \(nullifier\) and \(externalNullifier\), which can be found in the <strong>RLN</strong> protocol/circuits.</p>
+<p>\(externalNullifier = Poseidon(epoch, rln\_identifier)\), where \(rln\_identifier\) is a random finite field value, unique per RLN app.</p>
+<p>The \(externalNullifier\) is required so that the user can securely use the same private key \(a_0\) across different <strong>RLN</strong> apps - in different applications (and in different eras) with the same secret key, the user will have different values ​​of the coefficient \(a_1\).</p>
+<p>Now, imagine there are a lot of users sending messages, and after each received message, we need to check if any member can be slashed. To do this, we can use all combinations of received <em>shares</em> and try to recover the polynomial, but this is a naive and non-optimal approach. Suppose we have a mechanism that will tell us about the connection between a person and their messages while not revealing their identity. In that case, we can solve this without brute-forcing all possibilities by using a public \(nullifier = Poseidon(a_1)\), so if a user sends more than one message, it will be immediately visible to everyone.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="formal-spec-of-circom-rln"><a class="header" href="#formal-spec-of-circom-rln">Formal spec of circom-rln</a></h1>
 <ul>
 <li><a href="formal_spec.html#utils-templates">Utils</a>
@@ -302,7 +314,7 @@ Basically, it says how to calculate Poseidon hash, e.g. for two inputs \(input1\
 <li><a href="https://github.com/iden3/circomlib/blob/master/circuits/poseidon.circom">poseidon.circom</a> from circomlib.</li>
 </ul>
 <h3 id="rangecheck"><a class="header" href="#rangecheck">RangeCheck</a></h3>
-<p><strong>RangeCheck(LIMIT_BIT_SIZE)</strong> template used for range check, e.g. \(x \le y \le z\).</p>
+<p><strong>RangeCheck(LIMIT_BIT_SIZE)</strong> template used for range check.</p>
 <p><strong>Parameters</strong>:</p>
 <ul>
 <li>\(LIMIT\_BIT\_SIZE\) - maximum bit size of numbers that are used in range check, f.e. for the \(LIMIT\_BIT\_SIZE = 16\), input numbers allowed to be in the interval \([0, 65536)\).</li>
@@ -410,8 +422,9 @@ Checked that \(0 \le messageId &lt; limit\). </p>
 <p>Fees play important role in the economical side of the protocol. They prevent self-slashing attack vector, by making it economically inefficient; and also fees prevent money laundering schemes.</p>
 <h3 id="registration-1"><a class="header" href="#registration-1">Registration</a></h3>
 <p>Function <strong>register</strong> is used for registration. It receives \(identityCommitment\) as the argument as well as stake amount. Then it calculate messageLimit, based on the stake amount:
-\[messageLimit = amount / MINIMAL\_DEPOSIT\] </p>
+\[messageLimit = amount / MINIMAL\_DEPOSIT\]. </p>
 <p>Then it stores the \(identityCommitment\) in the users' set, and emits an event. Client nodes that need to listen to the event, cause based on that they calculate \(rateCommitment\) value. It's important part, because by doing that we don't need to calculate Poseidon hash on-chain, that's not cheap.</p>
+<p>It's also important to understand that we may not want to have different rate-limits for different users. We can enforce that by setting the hard value of stake amount.</p>
 <h3 id="withdraw--slashing"><a class="header" href="#withdraw--slashing">Withdraw | Slashing</a></h3>
 <p>There are two terms: <em>withdraw</em> and <em>slash</em> used in the RLN protocol. Let's define them:</p>
 <ul>
