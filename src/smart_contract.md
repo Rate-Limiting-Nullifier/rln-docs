@@ -22,6 +22,7 @@ Constructor gets all the necessary parameters for initialization of the contract
 
 It takes following parameters:
 * minimalDeposit: minimal membership deposit, cost of 1 message;
+* maximalRate: maximal rate - maximum amount of messages one can send;
 * depth: depth of the merkle tree;
 * feePercentage: fee percentage;
 * feeReceiver: address of the fee receiver;
