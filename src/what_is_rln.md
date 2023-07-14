@@ -10,7 +10,7 @@ Moreover, **RLN** can be useful not only to prevent spam attacks but, in general
 
 ## How it works
 
-The **RLN** construct's functionality consists of three parts These parts should be integrated by the upstream applications, that require anonymity and spam protection. The applications can be centralized or decentralized. For decentralized applications, each user maintains separate storage and compute resources for the application. 
+The **RLN** construct functionality consists of three parts. These parts should be integrated by the upstream applications, that require anonymity and spam protection. The applications can be centralized or decentralized. For decentralized applications, each user maintains separate storage and compute resources for the application. 
 
 The three parts are:
 * registration;
