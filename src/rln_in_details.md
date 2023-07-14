@@ -51,7 +51,7 @@ It's sound, because if we use the same \\(messageId\\) twice - we'll share two d
 ### Different rate-limits for different users
 
 It's also may be desired to have different rate-limits for different users, for example based on their stake amount. We can also achieve that by calculating \\(userMessageLimit\\) value and then deriving \\(rateCommitment\\):
-\\[rateCommitment = Poseidon(identityCommitment, rateCommitment)\\]
+\\[rateCommitment = Poseidon(identityCommitment, userMessageLimit)\\]
 during the registration phase.
 
 And it's the \\(rateCommitment\\) values that are stored in the membership Merkle tree.
