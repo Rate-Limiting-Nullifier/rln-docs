@@ -202,7 +202,7 @@ We denote:
 <p>It's sound, because if we use the same \(messageId\) twice - we'll share two different points from our first-degree polynomial, therefore it'll be possible to recover the secret key. And at the same time user also cannot input \(messageId\) value that's bigger than the \(messageLimit\), because of the range check.</p>
 <h3 id="different-rate-limits-for-different-users"><a class="header" href="#different-rate-limits-for-different-users">Different rate-limits for different users</a></h3>
 <p>It's also may be desired to have different rate-limits for different users, for example based on their stake amount. We can also achieve that by calculating \(userMessageLimit\) value and then deriving \(rateCommitment\):
-\[rateCommitment = Poseidon(identityCommitment, rateCommitment)\]
+\[rateCommitment = Poseidon(identityCommitment, userMessageLimit)\]
 during the registration phase.</p>
 <p>And it's the \(rateCommitment\) values that are stored in the membership Merkle tree.</p>
 <p>Therefore, in the circuit users will have to prove that the: 
