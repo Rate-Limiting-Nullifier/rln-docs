@@ -25,7 +25,7 @@ Thus, if we have a polynomial \\(f(x) = 3x + 2\\), we only need two points from 
 * For \\(x = 1\\) we have \\(f(1) = 3 * 1 + 2 = 5\\)
 * For \\(x = 10\\) we have \\(f(10) = 32\\)
 
-Now we have to shares: \\((1, 5)\\) and \\((10, 32)\\). If we draw a graph based on these two shares, we can easily see that this is the same line (function):
+Now we have two shares: \\((1, 5)\\) and \\((10, 32)\\). If we draw a graph based on these two shares, we can easily see that this is the same line (function):
 <p align="center">
     <img src="./images/line.png" width="500" height="400">
 </p>
