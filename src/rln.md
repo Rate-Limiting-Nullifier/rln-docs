@@ -4,7 +4,7 @@
 
 </div>
 
-**RLN** (Rate-Limiting Nullifier) is a zk-gadget/protocol that enables spam prevention mechanism for anonymous environments.
+**RLN** (Rate-Limiting Nullifier) is a zk-gadget/protocol that enables a spam prevention mechanism for anonymous environments.
 
 <!-- ## RLN Components, Tools, and Libraries -->
 
@@ -17,4 +17,3 @@
 |              |  2.1 | ❌ | ✅ | [v2.1 Issue](https://github.com/Rate-Limiting-Nullifier/rlnjs/issues/17)| -->
 
 > **RLN** is part of (**PSE**) [Privacy & Scaling Explorations](https://appliedzkp.org), a multidisciplinary team supported by the Ethereum Foundation. PSE explores new use cases for zero-knowledge proofs and other cryptographic primitives.
-

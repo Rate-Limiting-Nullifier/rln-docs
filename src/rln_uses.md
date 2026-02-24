@@ -1,6 +1,6 @@
 # Uses
 
-This section contains list of apps that use **RLN**:
+This section contains a list of apps that use **RLN**:
 
 * [zk-chat](https://github.com/Rate-Limiting-Nullifier/zk-chat-client-server) - a spam resistant instant messaging application for private and anonymous communication;
 * [waku-rln-relay](https://rfc.vac.dev/spec/17/) - extension of [waku-relay](https://rfc.vac.dev/spec/11/) (spam protection with **RLN**);

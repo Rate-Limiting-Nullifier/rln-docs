@@ -27,10 +27,10 @@ flowchart TB
         merkle_tree_inclusion_proof --> root(ZKP of Merkle Tree Root)
       end
 
-      subgraph Shamirs Secret Scheme
+      subgraph Shamir's Secret Scheme
         a_0 --> plus(+)
         a_1 --> multiply(*)
-        x(Hashed Messaage) --> multiply
+        x(Hashed Message) --> multiply
         multiply --> plus
         plus --> share_y
       end
